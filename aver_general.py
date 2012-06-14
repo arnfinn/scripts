@@ -8,24 +8,42 @@ import math
 from optparse import OptionParser
 import re
 
+def aver(mylist):
+    tot = 0.0
+    for i in mylist:
+        tot=tot+i
+    return tot/len(mylist)
+
+def stdev(mylist):
+    ave = aver(mylist)
+    stan=0.0
+    for i in mylist:
+        stan=stan+(i-ave)*(i-ave)
+    return math.sqrt(stan/(len(mylist)-1))
+
+def ev2nm(mylist):
+    newlist=[]
+    for i in mylist:
+        newlist.append(1240.0/i)
+    return newlist
+
 parser = OptionParser()
 parser.add_option("-i", "--input",dest="filename", help="the file to read")
 parser.add_option("-r", "--row",type="int", dest="row",  default=1, help="The row where numbers are located")
 parser.add_option("-d", "--decimals",type="int", dest="dec", default=4, help="Number of decimals in the printet numbers")
 parser.add_option("-p", "--print",action="store_true", default=False, dest="printing", help="Print all the values")
+parser.add_option("--ev2nm",action="store_true", default=False, dest="ev2nm", help="Convert from eV to nm before calculating average")
 (options, args) = parser.parse_args()
 file = open(options.filename,'r')
 row = options.row-1
 dec = str(options.dec)
 
+
 lines = file.readlines()
-num = 0.0
-tall = 0.0
 tab=[]
 
 for line in lines:
     words = line.split()
-    num = num + 1.0
     ettall = words[row]
     if "." in ettall:
         ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
@@ -33,17 +51,15 @@ for line in lines:
         ettall = float(re.sub("\D","",words[row]))
     if options.printing:
         print ettall
-    tall = tall + float(ettall)
     tab.append(ettall)
 
-ave = tall/num
-stan=0.0
-for i in tab:
-    stan=stan+(i-ave)*(i-ave)
+if options.ev2nm:
+    tab = ev2nm(tab)
+    
+ave = aver(tab)
+stan = stdev(tab)
 
-stan=math.sqrt(stan/(num-1))
-
-print "Number of values = "+str(int(num))
+print "Number of values = "+str(len(tab))
 string = "Average value = %."+dec+"f"
 print string % (ave)
 string = "Standard deviation = %."+dec+"f"
