@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-# Arnfinn Hykkerud Steindal, Tromso Feb. 2012
+# Arnfinn Hykkerud Steindal, Tromso June 2012
 # A script that moves water molecules from the PE
 # region to the QM region when inside
 # a given distance from the qm region
-#
+# INPUT: -q mol file; -m pot file
 
 import math
 #from optparse import OptionParser
@@ -19,8 +19,7 @@ class OptionParser (optparse.OptionParser):
 
 def get_xyz(line):
     words=line.split()
-    a=len(words)
-    return [float(words[a-6]),float(words[a-5]),float(words[a-4])]
+    return [float(words[1]),float(words[2]),float(words[3])]
 
 def get_distance(coord1,coord2):
     a=[]
@@ -32,6 +31,13 @@ def get_distance(coord1,coord2):
     else:
         print "something wrong..."
     return math.sqrt(sum([a[i] for i in range(len(a))]))
+
+def mkmolline(ele,x,y,z):
+    n=10
+    a=n-len(x)
+    b=n-len(y)
+    c=n-len(z)
+    return ele + a*" " + x + b*" " + y + c*" " + z 
 
 parser = OptionParser()
 parser.add_option("-q", "--qminput",dest="qmfile", default=None)
@@ -48,18 +54,13 @@ mmfile=open(options.mmfile,'r')
 qmlen=len(options.qmfile)
 mmlen=len(options.mmfile)
 
-a= qmlen
-if options.qmfile[a-3:a] == "mol":
-    print "yes"
-
+heavyatom=[]
 lines=qmfile.readlines()
-for line in lines:
-    if line[13:15]=="OH":
-        oh_coord=get_xyz(line)
-    if line[13:15]=="N2":
-        n2_coord=get_xyz(line)
-    if line[13:15]=="O2":
-        o2_coord=get_xyz(line)
+for line in lines[4:]:
+    atm=line.split()[0]
+    if atm in ["C","N","O","H"]:
+        heavyatom.append(get_xyz(line))
+    
 
 k=0
 r=3
@@ -94,7 +95,12 @@ for line in mmfile.readlines():
                 test=words[tot+j].split(".")
                 a=3-len(test[0])
                 xyz.append(a*" "+test[0]+"."+test[1][0:3])
-            mindist=min(get_distance(xyz,oh_coord),get_distance(xyz,n2_coord),get_distance(xyz,o2_coord))
+            mindist = 10.0
+            for j in heavyatom:
+                dist = get_distance(xyz,j)
+                if dist<mindist:
+                    mindist=dist
+#            mindist=min(get_distance(xyz,oh_coord),get_distance(xyz,n2_coord),get_distance(xyz,o2_coord))
             if mindist<thr:
                 numh2o=numh2o+1
                 moloxyz.append(xyz)
@@ -136,30 +142,20 @@ if mol:
     hydrogen=[]
     all=[carbon,oxygen,nitrogen,sulfur,hydrogen]
     charge=0
-    for line in lines:
-        try:
-            num=int(line[78:79])
-            if line[79:80]=="+":
-                charge=charge+num
-            elif line[79:80]=="-":
-                charge=charge-num
-        except:
-            pass
-        coord=[line[31:38],line[39:46],line[47:54]]
+    if lines[0][0:5] == "BASIS":
+        head = 5
+    elif lines[0][0:5] == "ATOMB":
+        head = 4
+    for line in lines[head:]:
+        words = line.split()
         for i in range(5):
-            if line[77:78]==atomele[i]:
+            if words[0]==atomele[i]:
+                coord=[words[1],words[2],words[3]]
                 all[i].append(coord)
                 break
-    line1="BASIS\n6-31+G*\n"
-    line2="Molfile made from-chrom\n\n"
-    if len(all[3])!=0:
-        line3="Atomtypes=5 Angstrom Nosymmetry"
-    else:
-        line3="Atomtypes=4 Angstrom Nosymmetry"
-    if charge!=0:
-        line3=line3+" Charge="+str(charge)
-    line3=line3+"\n"
-    molout=line1+line2+line3
+    molout=""
+    for line in lines[0:head]:
+        molout = molout + line
     for i in range(5):
         leng=len(all[i])
         if atomele[i]=="O":
@@ -173,7 +169,7 @@ if mol:
         if leng!=0:
             molout=molout+"Charge="+atomq[i]+" Atoms="+str(leng)+"\n"
             for k in range(leng):
-                molout=molout+atomele[i]+"   "+all[i][k][0]+"   "+all[i][k][1]+"   "+all[i][k][2]+"\n"
+                molout=molout+mkmolline(atomele[i],all[i][k][0],all[i][k][1],all[i][k][2])+"\n"
         
     dalfile = open(options.qmfile[0:qmlen-4]+'-new.mol','w')
     dalfile.write(molout)
