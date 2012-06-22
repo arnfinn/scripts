@@ -33,9 +33,10 @@ def get_opa_ex(file,line):
     for k in range(4):
         line = file.readline()
     words = line.split()
-    value = str(float(words[1])+0.005)
+    value = str(float(words[1])+0.0005)
+#    value = str(float(words[1])+0.005)
 #    value = str(float(words[1]))
-    excit = excit + ' ' + value[0:4]
+    excit = excit + ' ' + value[0:5]
     for k in range(4):
         line = file.readline()
     intens = 0.0
