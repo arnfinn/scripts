@@ -33,18 +33,29 @@ parser.add_option("-r", "--row",type="int", dest="row",  default=1, help="The ro
 parser.add_option("-d", "--decimals",type="int", dest="dec", default=4, help="Number of decimals in the printet numbers")
 parser.add_option("-p", "--print",action="store_true", default=False, dest="printing", help="Print all the values")
 parser.add_option("--ev2nm",action="store_true", default=False, dest="ev2nm", help="Convert from eV to nm before calculating average")
+parser.add_option("--av2",action="store_true", default=False, dest="aver2", help="Calculate the average of numbers where two are weighted")
+parser.add_option("--av20",action="store_true", default=False, dest="aver20", help="Calculate the average of the 20 first snapshots")
 (options, args) = parser.parse_args()
 file = open(options.filename,'r')
 row = options.row-1
 dec = str(options.dec)
 
-
-lines = file.readlines()
+if options.aver20:
+    lines = file.readlines()[0:20]
+else:
+    lines = file.readlines()
 tab=[]
 
 for line in lines:
     words = line.split()
-    ettall = words[row]
+    if options.aver2:
+        oneex = float(re.sub("\D","",words[0].split(".")[0])+"."+re.sub("\D","",words[0].split(".")[1]))
+        onetr = float(re.sub("\D","",words[1].split(".")[0])+"."+re.sub("\D","",words[1].split(".")[1]))
+        twoex = float(re.sub("\D","",words[2].split(".")[0])+"."+re.sub("\D","",words[2].split(".")[1]))
+        twotr = float(re.sub("\D","",words[3].split(".")[0])+"."+re.sub("\D","",words[3].split(".")[1]))
+        ettall=str((oneex*onetr + twoex*twotr)/(onetr + twotr))
+    else:
+        ettall = words[row]
     if "." in ettall:
         ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
     else:
