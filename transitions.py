@@ -54,10 +54,14 @@ for i in sys.argv[1:]:
                             break
                         low=int(words[1].split('(')[0])
                         high=int(words[2].split('(')[0])
-                        down=str(low-91)
-                        up=str(high-92)
-#                        down=str(low-126)
-#                        up=str(high-127)
+                        if high-low==1:
+                            reduce=low
+#                        else:
+#                            reduce=127
+                            #                        down=str(low-91)
+                            #                        up=str(high-92)
+                        down=str(low-reduce)
+                        up=str(high-reduce-1)
                         if down=='0':
                             mo1='H'
                         else:
