@@ -34,14 +34,14 @@ parser.add_option("-d", "--decimals",type="int", dest="dec", default=4, help="Nu
 parser.add_option("-p", "--print",action="store_true", default=False, dest="printing", help="Print all the values")
 parser.add_option("--ev2nm",action="store_true", default=False, dest="ev2nm", help="Convert from eV to nm before calculating average")
 parser.add_option("--av2",action="store_true", default=False, dest="aver2", help="Calculate the average of numbers where two are weighted")
-parser.add_option("--av20",action="store_true", default=False, dest="aver20", help="Calculate the average of the 20 first snapshots")
+parser.add_option("--avnum",type="int", dest="avernum", default=0,help="Calculate the average of the N first values")
 (options, args) = parser.parse_args()
 file = open(options.filename,'r')
 row = options.row-1
 dec = str(options.dec)
 
-if options.aver20:
-    lines = file.readlines()[0:20]
+if options.avernum>0:
+    lines = file.readlines()[0:options.avernum]
 else:
     lines = file.readlines()
 tab=[]
