@@ -54,12 +54,16 @@ for line in lines:
         twoex = float(re.sub("\D","",words[2].split(".")[0])+"."+re.sub("\D","",words[2].split(".")[1]))
         twotr = float(re.sub("\D","",words[3].split(".")[0])+"."+re.sub("\D","",words[3].split(".")[1]))
         ettall=str((oneex*onetr + twoex*twotr)/(onetr + twotr))
+#        print "two "+ettall
     else:
         ettall = words[row]
+#        print "one " +ettall
     if "." in ettall:
-        ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
+        ettall = float(re.sub("\D","",ettall.split(".")[0])+"."+re.sub("\D","",ettall.split(".")[1]))
+#        ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
     else:
-        ettall = float(re.sub("\D","",words[row]))
+        ettall = float(re.sub("\D","",ettall))
+#        ettall = float(re.sub("\D","",words[row]))
     if options.printing:
         print ettall
     tab.append(ettall)
