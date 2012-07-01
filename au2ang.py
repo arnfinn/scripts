@@ -13,6 +13,8 @@ def au2ang(value):
 
 parser = OptionParser()
 parser.add_option("-i", "--input",dest="filename", help="the file to read")
+(options, args) = parser.parse_args()
+
 file = open(options.filename,'r')
 lines = file.readlines()
 file.close()
