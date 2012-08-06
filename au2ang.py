@@ -8,8 +8,9 @@ import math
 from optparse import OptionParser
 
 def au2ang(value):
-    new_value = value /2
+    new_value = value*0.529177249
     return new_value
+
 
 parser = OptionParser()
 parser.add_option("-i", "--input",dest="filename", help="the file to read")
@@ -21,7 +22,7 @@ file.close()
 
 b= len(options.filename)
 newfile = open(options.filename[0:b-4]+"_ang.xyz","w")
-newfile.write(lines[0]+"\n"+lines[1]+"\n")
+newfile.write(lines[0]+lines[1])
 
 
 newlines=""
@@ -32,9 +33,7 @@ for line in lines[2:]:
         y=au2ang(float(words[2]))
         z=au2ang(float(words[3]))
     except:
-        newfile.write(newlines)
-        newfile.close()
         break
-    newline=line.replace(words[1],str(x)).replace(words[2],str(y)).replace(words[3],str(z))
-    newlines=newlines+newline
-    
+    newfile.write(line.replace(words[1],str(x)).replace(words[2],str(y)).replace(words[3],str(z)))
+
+newfile.close()    
