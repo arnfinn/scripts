@@ -113,7 +113,7 @@ def dihedral(vec1,vec2,vec3,vec4):
         torsion = 360-torsion
         if torsion == 360: torsion = 0.0
         return torsion
-
+#    return torsion
 
 
 
@@ -188,7 +188,6 @@ for line in lines:
             setattr(sys.modules[__name__],"FP",words[3])
             if words[2] in gfpatoms:
                 setattr(sys.modules[__name__],words[2],[float(words[6]),float(words[7]),float(words[8])])
-
 
 print "Filename: " + options.filename
 if FP in ["GFP","YFP","EFP"]:
