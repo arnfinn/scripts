@@ -14,6 +14,32 @@ def aver(mylist):
         tot=tot+i
     return tot/len(mylist)
 
+def f(x,y):
+  return min(y-x, y-x+2*math.pi, y-x-2*math.pi, key=abs)
+
+def degaver(mylist):
+    sini = 0.0
+    cosi = 0.0
+    for i in mylist:
+        sini = sini + math.sin(math.radians(i))
+        cosi = cosi + math.cos(math.radians(i))
+    val = math.degrees(math.atan2(sini/len(mylist),cosi/len(mylist)))
+    if val<0:
+        val = 360+val
+    return val
+
+def degstdev(mylist):
+    ave=degaver(mylist)
+    avecos=math.cos(math.radians(ave))
+    avesin=math.sin(math.radians(ave))
+    stancos = 0.0
+    stansin = 0.0
+    stan = 0.0
+    for i in mylist:
+        degdiff = math.degrees(f(math.radians(i),math.radians(ave)))
+        stan = stan + degdiff*degdiff
+    return math.sqrt(stan/(len(mylist)-1))
+
 def stdev(mylist):
     ave = aver(mylist)
     stan=0.0
@@ -34,11 +60,13 @@ parser.add_option("-d", "--decimals",type="int", dest="dec", default=4, help="Nu
 parser.add_option("-p", "--print",action="store_true", default=False, dest="printing", help="Print all the values")
 parser.add_option("--ev2nm",action="store_true", default=False, dest="ev2nm", help="Convert from eV to nm before calculating average")
 parser.add_option("--av2",action="store_true", default=False, dest="aver2", help="Calculate the average of numbers where two are weighted")
+parser.add_option("--deg",action="store_true", default=False, dest="deg", help="Calculate the average of degrees (problem with numbers around zero)")
 parser.add_option("--avnum",type="int", dest="avernum", default=0,help="Calculate the average of the N first values")
 (options, args) = parser.parse_args()
 file = open(options.filename,'r')
 row = options.row-1
 dec = str(options.dec)
+deg = options.deg
 
 if options.avernum>0:
     lines = file.readlines()[0:options.avernum]
@@ -70,9 +98,13 @@ for line in lines:
 
 if options.ev2nm:
     tab = ev2nm(tab)
-    
-ave = aver(tab)
-stan = stdev(tab)
+
+if deg:
+    ave=degaver(tab)
+    stan = degstdev(tab)
+else:
+    ave = aver(tab)
+    stan = stdev(tab)
 
 print "Number of values = "+str(len(tab))
 string = "Average value = %."+dec+"f"
