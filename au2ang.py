@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # Arnfinn Hykkerud Steindal, Tromso Apr 2010; May 2012
-# Read a file (-i FILENAME) and make an average of
-# values in the first row (if not given as -r ROW).
+# Read an xyz file (-i FILENAME) and convert from
+# atomic units to angstrom.
+
 
 import sys
 import math
