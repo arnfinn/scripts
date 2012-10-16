@@ -44,10 +44,21 @@ parser.add_option("-m", "--MM",action="store_true",default=False, dest="mm", hel
 # make a dalton molecule file
 parser.add_option("-d", "--mol",action="store_true",default=False, dest="mol", help="Make a mol-file for Dalton")
 parser.add_option("-a", "--all",action="store_true",default=False, dest="all", help="store only the pdb file after removing water molecules")
-parser.add_option("-r", "--residue",dest="residue", help="Add another amino acid residue into the QM region")
+parser.add_option("-r", "--residue",dest="res", help="Add another amino acid residue into the QM region")
 (options, args) = parser.parse_args()
 file = options.filename
 threshold=options.thr
+res=options.res
+prev=""
+next=""
+try:
+    if options.res:
+        prev=str(int(res)-1)
+        next=str(int(res)+1)
+except:
+    print "The residue has to be an integer: -r <integer>"
+    sys.exit()
+    
 nh=options.nh
 ch=options.ch
 
@@ -107,6 +118,7 @@ for line in tofile.split("\n"):
     if num>1:
         if line[0:4]=="ATOM" or line[0:4]=="HETA":
             if line[21:22]=="A":
+                # The chromophore
                 if words[5] in ["65","66","67"]:
                     chrom=chrom+line+"\n"
                 elif words[5]=="68" and words[2]=="H":
@@ -155,6 +167,86 @@ for line in tofile.split("\n"):
                     n68=[float(words[6]),float(words[7]),float(words[8])]
                     n68line=line
                 elif words[5]=="68" and words[2]=="CA":
+                    # hopefully last one
+                    ca68=[float(words[6]),float(words[7]),float(words[8])]
+                    new68MM = new_coord(ca68,n68,ch)
+                    new68QM = new_coord(n68,ca68,nh)
+                    newline2=line.replace("    C","    H")
+                    a=[]
+                    b=[]
+                    leng=[]
+                    for i in range(3):
+                        xyz=str(round(new68QM[i],3)).split(".")
+                        a.append(xyz[0])
+                        b.append(xyz[1])
+                        leng.append(4-len(xyz[0]))
+                        leng.append(3-len(xyz[1]))
+                    newline2=newline2[0:30]+leng[0]*" "+a[0]+"."+b[0]+leng[1]*"0"+leng[2]*" "+a[1]+"."+b[1]+leng[3]*"0"+leng[4]*" "+a[2]+"."+b[2]+leng[5]*"0"+newline2[54:]
+                    chrom=chrom+newline2+"\n"
+
+                    newline=n68line.replace("    N","    H")
+                    a=[]
+                    b=[]
+                    leng=[]
+                    for i in range(3):
+                        xyz=str(round(new68MM[i],3)).split(".")
+                        a.append(xyz[0])
+                        b.append(xyz[1])
+                        leng.append(4-len(xyz[0]))
+                        leng.append(3-len(xyz[1]))
+                    newline=newline[0:30]+leng[0]*" "+a[0]+"."+b[0]+leng[1]*"0"+leng[2]*" "+a[1]+"."+b[1]+leng[3]*"0"+leng[4]*" "+a[2]+"."+b[2]+leng[5]*"0"+newline[54:]
+
+                    if not qm:
+                        newfile=newfile+line + "\n"+newline + "\n"
+                # extra amino acid
+                elif words[5] in [res]:
+                    chrom=chrom+line+"\n"
+                elif words[5]==next and words[2]=="H":
+                    chrom=chrom+line+"\n"
+                elif words[5]==prev and words[2]=="O":
+                    chrom=chrom+line+"\n"
+                elif words[5]==prev and words[2]=="CA":
+                    if not qm:
+                        newfile=newfile+line + "\n"
+                    line64=line
+                    ca64=[float(words[6]),float(words[7]),float(words[8])]
+                elif words[5]==prev and words[2]=="C":
+                    chrom=chrom+line+"\n"
+                    c64=[float(words[6]),float(words[7]),float(words[8])]
+                    new64MM = new_coord(ca64,c64,ch)
+                    new64QM = new_coord(c64,ca64,ch)
+                    newline2=line64.replace("    C","    H")
+                    a=[]
+                    b=[]
+                    leng=[]
+                    for i in range(3):
+                        xyz=str(round(new64QM[i],3)).split(".")
+                        a.append(xyz[0])
+                        b.append(xyz[1])
+                        leng.append(4-len(xyz[0]))
+                        leng.append(3-len(xyz[1]))
+                    newline2=newline2[0:30]+leng[0]*" "+a[0]+"."+b[0]+leng[1]*"0"+leng[2]*" "+a[1]+"."+b[1]+leng[3]*"0"+leng[4]*" "+a[2]+"."+b[2]+leng[5]*"0"+newline2[54:]
+                    chrom=chrom+newline2+"\n"
+
+                    newline=line.replace("    C","    H")
+                    a=[]
+                    b=[]
+                    leng=[]
+                    for i in range(3):
+                        xyz=str(round(new64MM[i],3)).split(".")
+                        a.append(xyz[0])
+                        b.append(xyz[1])
+                        leng.append(4-len(xyz[0]))
+                        leng.append(3-len(xyz[1]))
+                    newline=newline[0:30]+leng[0]*" "+a[0]+"."+b[0]+leng[1]*"0"+leng[2]*" "+a[1]+"."+b[1]+leng[3]*"0"+leng[4]*" "+a[2]+"."+b[2]+leng[5]*"0"+newline[54:]
+
+                    if not qm:
+                        newfile=newfile+newline + "\n"
+                elif words[5]==next and words[2]=="N":
+                    chrom=chrom+line+"\n"
+                    n68=[float(words[6]),float(words[7]),float(words[8])]
+                    n68line=line
+                elif words[5]==next and words[2]=="CA":
                     # hopefully last one
                     ca68=[float(words[6]),float(words[7]),float(words[8])]
                     new68MM = new_coord(ca68,n68,ch)
