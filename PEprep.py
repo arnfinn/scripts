@@ -33,17 +33,18 @@ def new_coord(base,old,new_dist):
     return result
 
 parser = OptionParser()
-parser.add_option("-i", "--input",dest="filename")
-parser.add_option("-t", "--threshold",type="float", dest="thr",  default=8.0)
-parser.add_option("-n", "--NH",type="float", dest="nh", default=1.009)
-parser.add_option("-c", "--CH",type="float", dest="ch", default=1.101)
+parser.add_option("-i", "--input",dest="filename", help="The input file")
+parser.add_option("-t", "--threshold",type="float", dest="thr",  default=8.0, help="The threshold distance for removal of water molecules")
+parser.add_option("-n", "--NH",type="float", dest="nh", default=1.009, help="The distance between nitrogen and hydrogen")
+parser.add_option("-c", "--CH",type="float", dest="ch", default=1.101, help="The distance between carbon and hydrogen")
 # only make QM pdb file
-parser.add_option("-q", "--QM",action="store_true",default=False, dest="qm")
+parser.add_option("-q", "--QM",action="store_true",default=False, dest="qm", help="Only make the pdb file of the QM region")
 # only make MM pdb file
-parser.add_option("-m", "--MM",action="store_true",default=False, dest="mm")
+parser.add_option("-m", "--MM",action="store_true",default=False, dest="mm", help="Only make the pdb file for PE")
 # make a dalton molecule file
-parser.add_option("-d", "--mol",action="store_true",default=False, dest="mol")
+parser.add_option("-d", "--mol",action="store_true",default=False, dest="mol", help="Make a mol-file for Dalton")
 parser.add_option("-a", "--all",action="store_true",default=False, dest="all", help="store only the pdb file after removing water molecules")
+parser.add_option("-r", "--residue",dest="residue", help="Add another amino acid residue into the QM region")
 (options, args) = parser.parse_args()
 file = options.filename
 threshold=options.thr
