@@ -14,8 +14,9 @@ for arg in sys.argv[1:]:
     cntr = 0
     tall = 0
     inpxyz = ''
-    mol = open(arg+'.mol','r')
-    xyz = open(arg+'.xyz','w')
+    b=len(arg)
+    mol = open(arg,'r')
+    xyz = open(arg[0:b-4]+'.xyz','w')
     lines = mol.readlines()
     a = len(lines)
     mol.seek(0)
