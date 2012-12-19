@@ -30,6 +30,9 @@ for i in sys.argv[1:]:
             break
         words = line.split()
         leng = len(words)
+        if leng==4:
+            if words[0]=='Orbital' and  words[1]=='occupations' and words[2]==':':
+                reduce = int(words[3])
         if leng==7:
             if words[1]=='THE' and  words[2]=='REQUESTED' and  words[6]=='CONVERGED':
                 convergence = True
@@ -54,12 +57,14 @@ for i in sys.argv[1:]:
                             break
                         low=int(words[1].split('(')[0])
                         high=int(words[2].split('(')[0])
-                        if high-low==1:
-                            reduce=low
+#                        if high-low==1:
+#                            reduce=low
 #                        else:
 #                            reduce=127
                             #                        down=str(low-91)
                             #                        up=str(high-92)
+#                        print low
+#                        print reduce
                         down=str(low-reduce)
                         up=str(high-reduce-1)
                         if down=='0':
