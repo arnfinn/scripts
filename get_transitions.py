@@ -133,7 +133,7 @@ for i in range(numtrans):
                         mo2=lumostr
                     else:
                         mo2=lumostr+"+"+up
-                    percent=100.0*float(words[3])**2+0.5
+                    percent=2*100.0*float(words[3])**2+0.5
                     if percent>=5.0:
                         if latex:
                             printline=printline+str(percent).split('.')[0]+'\%('+mo1+'$\\to$'+mo2+')+'
