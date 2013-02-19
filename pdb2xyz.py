@@ -3,20 +3,23 @@
 # Make a xyz file out of a pdb file
 
 import sys
+from optparse import OptionParser
 
-file=open(sys.argv[1]+'.pdb','r')
-out=open(sys.argv[1]+'.xyz','w')
+parser = OptionParser()
+parser.add_option("-i", "--input",dest="filename", help="the file to read")
+(options, args) = parser.parse_args()
+file = open(options.filename,'r')
+a=len(options.filename)
+out=open(options.filename[0:a-4]+'.xyz','w')
 
 lines=file.readlines()
 k=0
 body=''
 for i in lines:
-    words=i.split()
-    if words[0]=='HETATM' or words[0]=='ATOM':
-        ele=words[2][0]
+    if i[0:6]=='HETATM' or i[0:4]=='ATOM':
+        ele=i[13]
         k=k+1
-#        line=ele+str(k)+'   '+words[6]+'   '+words[7]+'   '+words[8]+'\n'
-        line=ele+str(k)+'   '+words[5]+'   '+words[6]+'   '+words[7]+'\n'
+        line=ele+str(k)+'   '+i[32:38]+'   '+i[41:46]+'   '+i[48:54]+'\n'
         body=body+line
 
 out.write(str(k)+'\n\n'+body)

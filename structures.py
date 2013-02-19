@@ -190,12 +190,14 @@ for line in lines:
                 setattr(sys.modules[__name__],words[2],[float(words[6]),float(words[7]),float(words[8])])
 
 print "Filename: " + options.filename
+if FP in fps:
+    print_dist("CD2",CD2,"CG2",CG2)
 if FP in ["GFP","YFP","EFP"]:
+    print_dist("CE2",CE2,"CD2",CD2)
+    print_dist("CZ",CZ,"CE2",CE2)
     print_dist("OH",OH,"CZ",CZ)
     print_dist("CZ",CZ,"CE1",CE1)
-    print_dist("CZ",CZ,"CE2",CE2)
     print_dist("CE1",CE1,"CD1",CD1)
-    print_dist("CE2",CE2,"CD2",CD2)
     print_dist("CD1",CD1,"CG2",CG2)
 if FP == "BFP":
     print_dist("NE2",NE2,"CD2",CD2)
@@ -203,17 +205,16 @@ if FP == "BFP":
     print_dist("CE1",CE1,"ND1",ND1)
     print_dist("ND1",ND1,"CG2",CG2)
 if FP == "CFP":
-    print_dist("CH2",CH2,"CZ2",CZ2)
-    print_dist("CH2",CH2,"CZ3",CZ3)
-    print_dist("CZ2",CZ2,"CE2",CE2)
-    print_dist("CZ3",CZ3,"CE3",CE3)
     print_dist("CE3",CE3,"CD2",CD2)
+    print_dist("CZ3",CZ3,"CE3",CE3)
+    print_dist("CH2",CH2,"CZ3",CZ3)
+    print_dist("CH2",CH2,"CZ2",CZ2)
+    print_dist("CZ2",CZ2,"CE2",CE2)
     print_dist("CE2",CE2,"CD2",CD2)
     print_dist("CE2",CE2,"NE1",NE1)
     print_dist("NE1",NE1,"CD1",CD1)
     print_dist("CD1",CD1,"CG2",CG2)
 if FP in fps:
-    print_dist("CD2",CD2,"CG2",CG2)
     print_dist("CG2",CG2,"CB2", CB2)
     print_dist("CB2",CB2,"CA2", CA2)
     print_dist("CA2",CA2,"N2" , N2 )
