@@ -39,7 +39,7 @@ def get_opa_ex(file,line):
             intens = intens + float(words[5])
         except:
             break
-    intens = intens/3.0
+#    intens = intens/3.0
     strint = str(intens)
     if intens<0.001:
         strint = '0.00000'
