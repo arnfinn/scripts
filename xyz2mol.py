@@ -2,7 +2,6 @@
 # Arnfinn Hykkerud Steindal, Tromso Oct. 2010
 # Converts a xyz-file to a mol-file for Dalton
 # TODO: 1) convert from au to angstrom, if needed
-#       2) taking arguments
 #       3) add more/all elements
 
 import re
@@ -11,16 +10,31 @@ import shutil
 import string
 import os
 
-basis = '6-31+G*'
+from optparse import OptionParser
+
+
+parser = OptionParser()
+parser.add_option("-i", "--input",dest="filename", help="the file to read")
+parser.add_option("-b", "--basis",dest="basisset", default='6-31+G*', help="the basisset")
+parser.add_option("-q", "--charge",dest="charge", help="the molecular charge, +, - or 0")
+
+(options, args) = parser.parse_args()
+filename=options.filename
+basis = options.basisset
+charge=options.charge
+if charge:
+    if charge not in ["0","+","-"]:
+        print "WARNING: "+charge + " not a valid charge"
+
+xyz = open(filename,'r')
+a=len(filename)
+mol=open(filename[0:a-4]+'.mol','w')
+
 # unit = angstrom
 
 all   = [['C','',0,'6.0'],['N','',0,'7.0'],['O','',0,'8.0'],['S','',0,'16.0'],['H','',0,'1.0']]
-arg   = sys.argv[1]
-fact  = 7
+fact  = len(all)
 
-a = len(arg)
-xyz = open(arg,'r')
-mol = open(arg[0:a-4]+'.mol','w')
 filelen = a
 
 lines = xyz.readlines()
@@ -45,22 +59,35 @@ for j in range(5):
     if all[j][2]>0:
         atmtps = atmtps + 1
 
-# A test to see if we have an open shell system
+# A test to see if we have a charged system
 test = 0.0
+test2 = 0
 for j in range(5):
     test = test + float(all[j][2])*float(all[j][3])
-print test
+running=True
+j=0
+
 test = str(test/2.0)
 test = test.split('.')
 odd = False
-if int(test[1])==5:
-    print 'Odd number of electrons in file '+arg+'. Setting charge=-1 in '+arg[0:filelen-4]+'.mol'
-    odd = True
+if int(test[1])==5 and not charge in ["+","-","0"]:
+    answer=True
+    print "The molecule in file "+filename+" has a odd number of protons."
+    charge = raw_input("Is it neutral (0), positively (+), or negatively (-) charged? ")
+    while answer:
+        if charge in ["+","-","0"]:
+            answer = False
+        else:
+            print "The answer "+str(charge)+" not valid!"
+            charge = raw_input("Please press 0 for neutral (open shell), + for positively  or - for negatively charged molecule: ")
+
 mol.write('ATOMBASIS\n\
-Structure from file '+arg+'\n\
+Structure from file '+filename+'\n\
 ----------------------\n\
 AtomTypes='+str(atmtps)+' NoSymmetry Angstrom')
-if odd:
+if charge=="+":
+    mol.write(' Charge=1\n')
+elif charge=="-":
     mol.write(' Charge=-1\n')
 else:
     mol.write('\n')

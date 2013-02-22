@@ -17,9 +17,8 @@ k=0
 body=''
 for i in lines:
     if i[0:6]=='HETATM' or i[0:4]=='ATOM':
-        ele=i[13]
         k=k+1
-        line=ele+str(k)+'   '+i[32:38]+'   '+i[41:46]+'   '+i[48:54]+'\n'
+        line=i[77]+str(k)+'   '+i[32:38]+'   '+i[41:46]+'   '+i[48:54]+'\n'
         body=body+line
 
 out.write(str(k)+'\n\n'+body)
