@@ -15,12 +15,21 @@ out=open(options.filename[0:a-4]+'.xyz','w')
 lines=file.readlines()
 k=0
 body=''
+charge=0
 for i in lines:
     if i[0:6]=='HETATM' or i[0:4]=='ATOM':
         k=k+1
-        line=i[77]+str(k)+'   '+i[32:38]+'   '+i[41:46]+'   '+i[48:54]+'\n'
+        line=i[77]+str(k)+'   '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
         body=body+line
+        try:
+            if i[79]=="+":
+                charge=charge+1
+            elif i[79]=="-":
+                charge=charge-1
+        except:
+            charge=charge
 
+#out.write(str(k)+'\n'+str(charge)+'\n'+body)
 out.write(str(k)+'\n\n'+body)
 file.close()
 out.close()

@@ -50,6 +50,7 @@ for i in range(n):
         of.write("Charge\n0.0\n")
     else:
         nel+=NEL[coord[i][0].lower()]
+#        of.write("Charge\n"+str(charge)+".0\n")
     of.write("End of Basis set\n")
 if(nel%2==1): print "WARNING!!! NOT CLOSED SHELL!!! REMOVING AN ELECTRON."
 of.write("End of Input\n\n")
