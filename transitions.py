@@ -9,6 +9,8 @@ import shutil
 import string
 from mymodules import *
 
+
+print "WARNING: Better to use get_transitions.py"
 for i in sys.argv[1:]:
     try:
         file = open(i,'r')
@@ -75,7 +77,7 @@ for i in sys.argv[1:]:
                             mo2='L'
                         else:
                             mo2='L+'+up
-                        percent=100.0*float(words[3])**2+0.5
+                        percent=2*100.0*float(words[3])**2+0.5
                         if percent>=5.0:
                             printline=printline+str(percent).split('.')[0]+'\%('+mo1+'$\\to$'+mo2+')+'
 #                            print str(percent).split('.')[0]+'\%('+mo1+'$\\to$'+mo2+')'
