@@ -66,3 +66,6 @@ def au2GM(exi_ev,sigma_au):
     exi_au=exi_ev*eV2au
     sigma_GM=const*exi_au**2*sigma_au
     return sigma_GM
+
+
+
