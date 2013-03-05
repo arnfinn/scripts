@@ -120,6 +120,7 @@ else:
     MpProp = args.MpProp
 
 if not args.potfile:
+    # if no pot-file given, name it as the first MpProp-file
     if MpProp[0].endswith('.MpProp'):
         potfile = MpProp[0][0:-7]+".pot"
     else:
@@ -158,14 +159,11 @@ if checkEqual(mulpollist) and checkEqual(polarilist):
     # making the pot file
     mypot="AU\n {0} {1} {2} 1 1\n".format(totatom, mulpollist[0], polarilist[0])
     k = 0
-    l = 0
     for i in textlist:
         k += 1
         for j in i:
-            l += 1
-            spc1=4-len(str(l))
-            spc2=4-len(str(k))
-            mypot+=spc1*" " + str(l) + spc2*" " + str(k) + 3*" " + j+"\n"
+            spc=4-len(str(k))
+            mypot += spc*" " + str(k) + 3*" " + j+"\n"
     outf=open(potfile, "w")
     outf.write(mypot)
     outf.close()
