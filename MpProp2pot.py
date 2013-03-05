@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-import os
+from os import path
 import argparse as ap
-import sys
 
 class MpProp2pot:
     def __init__(self,file):
@@ -37,35 +36,29 @@ class MpProp2pot:
             # dipoles
             if self.mul>=1:
                 k+=1
-                blank += 1
                 txt += self.add_nums(self.lines[k])
+                blank += 1
 
             # quadropoles
             if self.mul>=2:
-                k+=1
-                txt += self.add_nums(self.lines[k])
-                k+=1
-                txt += self.add_nums(self.lines[k])
+                for i in range(2):
+                    k+=1
+                    txt += self.add_nums(self.lines[k])
                 blank += 2
 
             # octupoles
             if self.mul>=3:
-                k+=1
-                txt += self.add_nums(self.lines[k])
-                k+=1
-                txt += self.add_nums(self.lines[k])
-                k+=1
-                txt += self.add_nums(self.lines[k])
-                k+=1
-                txt += self.add_nums(self.lines[k])
+                for i in range(4):
+                    k+=1
+                    txt += self.add_nums(self.lines[k])
+
             k = k + blank
 
             # polarizabilities
             k+=1
-            txt += self.add_nums(self.lines[k])
-            k+=1
-            txt += self.add_nums(self.lines[k])
-            k+=1
+            for i in range(2):
+                txt += self.add_nums(self.lines[k])
+                k+=1
             self.out.append(txt)
         return self.out
 
@@ -137,7 +130,7 @@ else:
     else:
         potfile = args.potfile+".pot"
 
-if os.path.isfile('{0}'.format(potfile)) and not args.force:
+if path.isfile('{0}'.format(potfile)) and not args.force:
     exit('{0} does already exist. Please run script with -f'
          ' to force overwriting it.'.format(potfile))
 
@@ -151,7 +144,7 @@ for i in MpProp:
         file = i
     else:
         file = i+'.MpProp'
-    if not os.path.isfile('{0}'.format(file)):
+    if not path.isfile('{0}'.format(file)):
         exit('{0} not found.'.format(file))
 
     k = MpProp2pot(file)
@@ -192,8 +185,3 @@ elif not checkEqual(polarilist):
             str(mulpollist[-1]),', '.join(str(i) for i in MpProp[:-1]), 
             str(MpProp[-1])))
     exit()
-
-
-
-
-
