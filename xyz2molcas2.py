@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 
-###!/usr/bin/python
-
 import os
-import shlex
-import subprocess as sp
 import argparse as ap
-#from mymodules import Elements
 
 def get_atomnum(ele):
     list={
