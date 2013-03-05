@@ -15,6 +15,12 @@ def get_atomnum(ele):
     except:
         print "Element "+ele+" not in list. Please add it!"
 
+
+def error1(charge,num_protons,file):
+    print "File: "+file+": Wrong charge specified for a closed shell molecule"
+    print "Charge "+str(charge)+" given with total of "+str(num_protons)+" protons."
+def error2(charge):
+    print "Setting charge to " +str(charge-1)
     
 
 def get_occu(file,charge):
@@ -31,15 +37,15 @@ def get_occu(file,charge):
     test = str(num_protons/2.0).split('.')
     if int(test[1])==5:
         if charge==0:
-            print "Wrong charge specified for a closed shell molecule: "+str(charge)
-            print "with total of "+str(num_protons)+" protons. Setting charge to " +str(charge-1)
+            error1(charge,num_protons,file)
+            error2(charge)
             num_occ = num_protons/2 + 1
         else:
             num_occ = (num_protons-charge)/2
     elif int(test[1])==0:
         if charge==1 or charge==-1:
-            print "Wrong charge specified for a closed shell molecule: "+str(charge)
-            print "with total of "+str(num_protons)+" protons. Please check your molecule."
+            error1(charge,num_protons,file)
+            print "Please check your molecule."
             quit()
         elif charge==0:
             num_occ = num_protons/2
@@ -49,7 +55,7 @@ def get_occu(file,charge):
 
 parser = ap.ArgumentParser(description='LoProp job submitter 0.1')
 
-parser.add_argument('-xyz', dest='xyzfile', metavar='XYZ_FILE',
+parser.add_argument('--xyz', dest='xyzfile', metavar='XYZ_FILE',
                     help='''the name of the xyz input file that contains the
                             molecule.''')
 
