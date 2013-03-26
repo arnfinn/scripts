@@ -32,7 +32,7 @@ mol=open(filename[0:a-4]+'.mol','w')
 
 # unit = angstrom
 
-all   = [['C','',0,'6.0'],['N','',0,'7.0'],['O','',0,'8.0'],['S','',0,'16.0'],['H','',0,'1.0']]
+all   = [['C','',0,'6.0'],['N','',0,'7.0'],['O','',0,'8.0'],['S','',0,'16.0'],['H','',0,'1.0'],['L','',0,'3.0']]
 fact  = len(all)
 
 filelen = a
@@ -43,7 +43,7 @@ xyz.seek(0)
 for i in range(a):
     line = xyz.readline()
     words = line.split()
-    for j in range(5):
+    for j in range(fact):
         try:
             atom=words[0][0]
             if atom== all[j][0]:
@@ -55,14 +55,14 @@ for i in range(a):
             break
 
 atmtps = 0
-for j in range(5):
+for j in range(fact):
     if all[j][2]>0:
         atmtps = atmtps + 1
 
 # A test to see if we have a charged system
 test = 0.0
 test2 = 0
-for j in range(5):
+for j in range(fact):
     test = test + float(all[j][2])*float(all[j][3])
 running=True
 j=0
@@ -92,7 +92,7 @@ elif charge=="-":
 else:
     mol.write('\n')
 
-for j in range(5):
+for j in range(fact):
     if all[j][2]>0:
         mol.write('        Charge='+all[j][3]+'   Atoms='+str(all[j][2])+'   \
 Basis='+basis+'\n')
