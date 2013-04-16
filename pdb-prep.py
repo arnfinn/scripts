@@ -12,31 +12,166 @@ def get_xyz(line):
     a=len(words)
     return [float(words[a-6]),float(words[a-5]),float(words[a-4])]
 
-def get_distance(coord1,coord2):
-    a=[]
-    if len(coord1)==len(coord2):
-        for i in range(len(coord1)):
-            vec=coord1[i]-coord2[i]
-            vec2=vec*vec
-            a.append(vec2)
-    else:
-        print "something wrong..."
-    return math.sqrt(sum([a[i] for i in range(len(a))]))
+class CoordManipulation:
+    def __init__(self,coord1,coord2):
+        self.coord1 = coord1
+        self.coord2 = coord2
 
-def new_coord(base,old,new_dist):
-    # returns a new coordinate with a distance "new_dist" from point
-    # "base" in the same direction as "old"
-    old_dist=get_distance(base,old)
-    result=[]
-    for i in range(len(base)):
-        result.append(base[i]+(old[i]-base[i])*new_dist/old_dist)
-    return result
+    def get_distance(self):
+        a=[]
+        if len(self.coord1)==len(self.coord2):
+            for i in range(len(self.coord1)):
+                vec=self.coord1[i]-self.coord2[i]
+                vec2=vec*vec
+                a.append(vec2)
+        else:
+            print "something wrong..."
+        return math.sqrt(sum([a[i] for i in range(len(a))]))
 
+    def new_coord(new_dist=1.101):
+        # returns a new coordinate with a distance "new_dist" from point
+        # "coord1" in the same direction as "coord2"
+        old_dist=self.get_distance(self.coord1,self.coord2)
+        result=[]
+        for i in range(len(self.coord1)):
+            result.append(self.coord1[i]+(self.coord2[i]-self.coord1[i])*new_dist/old_dist)
+        return result
+
+
+class pdbCutter(CoordManipulation):
+    # cut out amino acids from a pdb file and cap the endings
+    # returns two pdb files?
+    def __init__(self, file=None, res=[66], size="small"):
+        self.filename = file
+        self.res = res
+        self.size = size
+        self.open = False
+        print self.res
+        print self.filename
+#        self.clean = self.pdbcleaner(self.lines)
+
+    def get_lines(self,finp=None):
+        if finp is None:
+            finp = self.filename
+        if not self.open:
+            try:
+                myfile=open(finp,'r')
+            except:
+                exit('Can not open file {0}. Does it exist?'.format(finp))
+            self.lines = myfile.readlines()
+            myfile.close()
+            self.open = True
+        else:
+            pass
+
+
+    def pdbcleaner(self,oldlines=None):
+        if oldlines is None:
+            oldlines = self.lines
+        newline=[]
+        for i in oldlines:
+            if self.check_string(i):
+                newline.append(i)
+        return newline
+
+    def pdb2xyz(self,pdblines=None,cntr=True,cleaned=False):
+        if pdblines is None:
+            pdblines = self.lines
+        if cleaned:
+            cleanlines = pdblines
+        else:
+            cleanlines=pdbcleaner(pdblines)
+        k=0
+        body=""
+        for i in cleanlines:
+            k+=1
+            if cntr:
+                a=5-len(k)
+                line=i[77]+str(k)+a*' '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
+            else:
+                line=i[77]+'    '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
+            body=body+line
+        return str(k)+"\n\n"+body
+
+    def wrtxyz(self,pdblines=None,filename=None,cntr=True):
+        if filename is None:
+            filename = self.filename
+        if pdblines is None:
+            pdblines = self.lines
+        a=len(filename)
+        out=open(filename[0:a-4]+'.xyz','w')
+        out.write(self.pdb2xyz(pdblines=pdblines,cntr=cntr))
+        out.close()
+
+    def check_string(self, pdbstring):
+        # check if string is a "pdb string"
+        if len(pdbstring)>77:
+            test1=self.get_typ(pdbstring)
+            if test1!="ATOM" and test1!="HETATM":
+                return False
+            else:
+                try:
+                    test2=self.get_residue(pdbstring)
+                    test3=self.get_coord(pdbstring)
+                    return True
+                except:
+                    return False
+        else:
+            return False
+
+    def cutter(self):
+        for i in self.lines:
+            pass
+
+    def cutout(self):
+#        self.small=small
+        self.minus_coord = self.cap_coord("minus")
+        self.plus_coord = self.cap_coord("plus")
+
+        self.newlines = ""
+
+        for i in self.lines:
+            if not self.check_string(i):
+#                print i
+                continue
+            try:
+                resline = self.get_residue(i)
+                coord = self.get_coord(i)
+            except:
+                exit("something wrong with line: ", i)
+            if resline==self.res:
+                self.newlines+=i
+            elif resline==self.res-1:
+                atom=i[13:16]
+                if atom=="O  ":
+                    self.newlines+=i
+                elif atom=="C  ": 
+                    self.newlines+=i
+                    if self.small:
+                        c_neg = coord
+                elif atom=="CA ": 
+                    ca_neg = coord
+                    if self.small:
+                        pass
+                elif self.small:
+                    
+                    pass
+                else:
+                    pass
+            elif resline==self.res+1:
+                atom=i[13:16]
+                if atom=="N  ":
+                    self.newlines+=i
+                elif atom=="H  ":
+                    self.newlines+=i
+                
+                    
+        return self.newlines
 
 class pdbPrep:
-    def __init__(self):
+    def __init__(self,pdbstring):
         # default values
-        self.lines=""
+        self.lines=pdbstring
         self.res = 66
         self.small = True
 
@@ -114,8 +249,6 @@ class pdbPrep:
 
             if self.side =="minus":
                 print "test"
-
-        
         return [0.0,0.0]
 
     def cutout(self):
@@ -236,12 +369,16 @@ except:
     exit('Can not open file {0}. Does it exist?'.format(file))
 #lines=finp.readlines()
 
-test=pdbPrep()
+test=pdbCutter(file=file)
+test2 = pdbCutter(res=[65,64])
 
-for i in args.res:
-    test.def_cut_input(finp.readlines(),i,small)
 
-    print test.cutout()
+test.get_lines()
+
+
+#for i in args.res:
+#    test.def_cut_input(finp.readlines(),i,small)
+#    print test.cutout()
 
 '''
 try:
