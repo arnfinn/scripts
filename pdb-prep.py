@@ -64,6 +64,23 @@ class pdbCutter(CoordManipulation):
         else:
             pass
 
+    def get_element(self,pdbstring):
+        return pdbstring[77]
+        
+    def get_typ(self,pdbstring):
+        return pdbstring[0:6].split()[0]
+
+    def get_atom(self,pdbstring):
+        return pdbstring[13:17].split()[0]
+
+    def get_residue(self,pdbstring):
+        return int(pdbstring[23:26].split()[0])
+
+    def get_coord(self,pdbstring):
+        x = float(pdbstring[30:38])
+        y = float(pdbstring[38:46])
+        z = float(pdbstring[46:54])
+        return [x,y,z]
 
     def pdbcleaner(self,oldlines=None):
         if oldlines is None:
@@ -192,23 +209,6 @@ class pdbPrep:
             return False
 
     
-    def get_element(self,pdbstring):
-        return pdbstring[77]
-        
-    def get_typ(self,pdbstring):
-        return pdbstring[0:6].split()[0]
-
-    def get_atom(self,pdbstring):
-        return pdbstring[13:17].split()[0]
-
-    def get_residue(self,pdbstring):
-        return int(pdbstring[23:26].split()[0])
-
-    def get_coord(self,pdbstring):
-        x = float(pdbstring[30:38])
-        y = float(pdbstring[38:46])
-        z = float(pdbstring[46:54])
-        return [x,y,z]
 
     def def_cut_input(self,lines,res,small):
         self.lines=lines
