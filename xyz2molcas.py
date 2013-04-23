@@ -41,7 +41,8 @@ if(n2>0):
     print "Monomer A, ", n1, " atoms, ", INFO(m1)
     print "Monomer B, ", n2, " atoms, ", INFO(m2)
 
-of.write("&Seward &End\nMULTipoles\n3\nCHOINPUT\nThrCon\n1.0E-4\nEndCh\nCHOL\n")
+#of.write("&Seward &End\nMULTipoles\n3\nCHOINPUT\nThrCon\n1.0E-4\nEndCh\nCHOL\n")
+of.write("&Seward &End\nMULTipoles\n2\nCHOINPUT\nThrCon\n1.0E-4\nEndCh\nCHOL\n")
 nel=-charge
 
 for i in range(n):
