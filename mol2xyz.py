@@ -45,9 +45,14 @@ for arg in sys.argv[1:]:
         for k in range(atms):
             line = mol.readline()
             words = line.split()
-            a = 15 - len(words[1])
-            b = 15 - len(words[2])
-            c = 15 - len(words[3])
+            if len(words[1])<14:
+                a = 15 - len(words[1])
+                b = 15 - len(words[2])
+                c = 15 - len(words[3])
+            else:
+                a = 20 - len(words[1])
+                b = 20 - len(words[2])
+                c = 20 - len(words[3])
             cntr = cntr + 1
             # + str(cntr)
             tall = tall + 1
