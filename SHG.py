@@ -5,6 +5,7 @@ import sys
 import re
 import numpy as np
 import math
+from argparse import ArgumentParser
 
 def norm(vector):
     """ Returns the norm (length) of the vector."""
@@ -88,7 +89,19 @@ def get_perm_dipole(lines):
     c = unit_vector(unit_vector(a)+unit_vector(b))
     return c
 
-for file in sys.argv[1:]:
+
+parser = ArgumentParser(description="My SHG script")
+parser.add_argument("-i", "--input",dest="filename", nargs="+", 
+                    help="The dalton result file(s)")
+parser.add_argument("-d", "--dipole",action="store_true",default=False, dest="dipole", 
+                    help="Compute the SHG (beta||) in the direction of the permanent\
+ dipole moment (only working for water). Else: z-direction")
+args = parser.parse_args()
+
+
+
+
+for file in args.filename:
     try:
         finp = open(file,"r")
     except:
