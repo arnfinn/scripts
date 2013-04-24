@@ -111,8 +111,10 @@ for file in args.filename:
     finp.close()
 
     betas = get_beta(lines)
-    dip = get_perm_dipole(lines)
-
+    if args.dipole:
+        dip = get_perm_dipole(lines)
+    else:
+        dip = np.array([0.0, 0.0, 1.0])
     print np.dot(betas,dip)
 
 
