@@ -96,12 +96,14 @@ parser.add_argument("-i", "--input",dest="filename", nargs="+",
 parser.add_argument("-d", "--dipole",action="store_true",default=False, dest="dipole", 
                     help="Compute the SHG (beta||) in the direction of the permanent\
  dipole moment (only working for water). Else: z-direction")
+parser.add_argument("-p", "--print",action="store_true",default=False, dest="print", 
+                    help="Print out more information, for instance filename")
 args = parser.parse_args()
 
 
-
-
 for file in args.filename:
+    if args.print:
+        print file 
     try:
         finp = open(file,"r")
     except:
