@@ -102,7 +102,7 @@ args = parser.parse_args()
 
 
 for file in args.filename:
-    if args.print:
+    if args.print is True:
         print file 
     try:
         finp = open(file,"r")
