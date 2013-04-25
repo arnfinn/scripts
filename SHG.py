@@ -96,14 +96,14 @@ parser.add_argument("-i", "--input",dest="filename", nargs="+",
 parser.add_argument("-d", "--dipole",action="store_true",default=False, dest="dipdir",
                     help="Compute the SHG (beta||) in the direction of the permanent\
  dipole moment (only working for water!!), default: z-direction")
-parser.add_argument("-p", "--print",action="store_true",default=False, dest="printing", 
-                    help="Print out more information, for instance filename")
 parser.add_argument("-x",action="store_true",default=False, dest="xdir",
                     help="Compute the SHG (beta||) in the x-direction \
 (default = z-direction)")
 parser.add_argument("-y",action="store_true",default=False, dest="ydir",
                     help="Compute the SHG (beta||) in the y-direction \
 (default = z-direction)")
+parser.add_argument("-v", "--verbose",action="store_true",default=False, dest="printing", 
+                    help="Print out more information, for instance filename")
 args = parser.parse_args()
 
 
