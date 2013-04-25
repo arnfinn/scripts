@@ -91,13 +91,19 @@ def get_perm_dipole(lines):
 
 
 parser = ArgumentParser(description="My SHG script")
-parser.add_argument("-i", "--input",dest="filename", nargs="+", 
+parser.add_argument("-i", "--input",dest="filename", nargs="+",
                     help="The dalton result file(s)")
-parser.add_argument("-d", "--dipole",action="store_true",default=False, dest="dipole", 
+parser.add_argument("-d", "--dipole",action="store_true",default=False, dest="dipdir",
                     help="Compute the SHG (beta||) in the direction of the permanent\
- dipole moment (only working for water). Else: z-direction")
-parser.add_argument("-p", "--print",action="store_true",default=False, dest="print", 
+ dipole moment (only working for water!!), default: z-direction")
+parser.add_argument("-p", "--print",action="store_true",default=False, dest="print",
                     help="Print out more information, for instance filename")
+parser.add_argument("-x",action="store_true",default=False, dest="xdir",
+                    help="Compute the SHG (beta||) in the x-direction \
+(default = z-direction)")
+parser.add_argument("-y",action="store_true",default=False, dest="ydir",
+                    help="Compute the SHG (beta||) in the y-direction \
+(default = z-direction)")
 args = parser.parse_args()
 
 
@@ -113,8 +119,12 @@ for file in args.filename:
     finp.close()
 
     betas = get_beta(lines)
-    if args.dipole:
+    if args.dipdir:
         dip = get_perm_dipole(lines)
+    elif args.xdir:
+        dip = np.array([1.0, 0.0, 0.0])
+    elif args.ydir:
+        dip = np.array([0.0, 1.0, 0.0])
     else:
         dip = np.array([0.0, 0.0, 1.0])
     print np.dot(betas,dip)
