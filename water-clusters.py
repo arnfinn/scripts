@@ -299,6 +299,8 @@ if args.dalton:
     text += hydrogen
     filename = file.split(".")[0]+".mol"
     filewriter(filename,text)
+    if args.verbose:
+        print text
 
 if args.xyz:
     text = str(3*waters)+"\n\n"
@@ -313,8 +315,6 @@ if args.all:
         filename = file.split(".")[0]+"-"+str(i.num)+".xyz"
         text = "3\n\n"+clus2xyz(i,"O")+clus2xyz(i,"H")
         filewriter(filename,text)
-        if args.verbose:
-            print text
 
 
 
