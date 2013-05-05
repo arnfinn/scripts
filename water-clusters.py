@@ -204,12 +204,12 @@ args = parser.parse_args()
 
 arg_checker(args)
 
-if args.verbose:
-    arglist = str(args)[10:-1].split()
-    text= "The following arguments are used:\n"
-    for i in arglist:
-        text += i + " "
-    print text
+#if args.verbose:
+#    arglist = str(args)[10:-1].split()
+#    text= "The following arguments are used:\n"
+#    for i in arglist:
+#        text += i + " "
+#    print text
 
 file = args.filename
 finp = open(file,"r")
@@ -313,6 +313,8 @@ if args.all:
         filename = file.split(".")[0]+"-"+str(i.num)+".xyz"
         text = "3\n\n"+clus2xyz(i,"O")+clus2xyz(i,"H")
         filewriter(filename,text)
+        if verbose:
+            print text
 
 
 
