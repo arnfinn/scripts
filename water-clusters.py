@@ -313,7 +313,7 @@ if args.all:
         filename = file.split(".")[0]+"-"+str(i.num)+".xyz"
         text = "3\n\n"+clus2xyz(i,"O")+clus2xyz(i,"H")
         filewriter(filename,text)
-        if verbose:
+        if args.verbose:
             print text
 
 
