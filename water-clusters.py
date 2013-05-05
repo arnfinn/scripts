@@ -177,6 +177,8 @@ parser.add_argument("-d","--dalton", action="store_true", dest="dalton", default
                     help="Make dalton mol file of some water molecules")
 parser.add_argument("--pdb", action="store_true", dest="pdb", default=False, 
                     help="Make pdb file of the remaining water molecules")
+parser.add_argument("--geom", action="store_true", dest="geom", default=False, 
+                    help="Print geometrical parameters")
 parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False, 
                     help="More printing")
 parser.add_argument("-a","--all", action="store_true", dest="all", default=False, 
@@ -279,7 +281,7 @@ if args.dalton:
     arglist = str(args)[10:-1].split()
     newarg = list(arglist)
     # remove thing I do not care about
-    notincl = ["None", "False", "basis=", "filename=", "dalton=", "all=", "xyz=", "pdb=", "verbose="]
+    notincl = ["None", "False", "basis=", "filename=", "dalton=", "all=", "xyz=", "pdb=", "verbose=", "geom="]
     for i in arglist:
         for k in notincl:
             if k in i:
@@ -314,14 +316,10 @@ if args.all:
 
 
 
-"""
 #Some testing of structures
-test=True
-test=False
-if test:
+if args.geom:
     for i in mylist:
         print "dist/angle \
 " + str("%.3f" % get_distance(i.o,i.h1)) + " \
 " + str("%.3f" % get_distance(i.o,i.h2)) + " \
 " + str("%.1f" % get_angle(i.h1,i.o,i.h2))
-"""
