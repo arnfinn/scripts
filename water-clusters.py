@@ -11,15 +11,39 @@ import geometry
 from numpy import pi
 
 class H2O:
-    def __init__(self, num, o, h1, h2, dist=0.0):
+    def __init__(self, num, o, h1, h2, dist=0.0, com=[0.0,0.0,0.0]):
         self.num = num
         self.o = o
         self.h1 = h1
         self.h2 = h2
         self.dist = dist
+        self.com = com
     def __repr__(self):
-        return repr((self.num, self.o, self.h1, self.h2, self.dist))
+        return repr((self.num, self.o, self.h1, self.h2, self.dist, self.com))
 
+def get_PBC(lines):
+    # periodic boundary conditions
+    try:
+        for i in lines[0:10]:
+            k = i.split()
+            if k[0] == "CRYST1":
+                coord = [float(k[1]), float(k[2]), float(k[3])]
+    except:
+        return False
+    return coord
+
+def get_com(mol):
+    label_2_mass = {'H':1.0079, 'Li':6.9400, 'Be':9.0122, 'B':10.8100,
+                    'C':12.0110, 'N':14.0067, 'O':15.9994, 'F':18.9984,
+                    'Na':22.9898, 'Mg':24.3100, 'Al':26.9800, 'Si':28.0860,
+                    'P':30.9740, 'S':32.0600, 'Cl':35.4530, 'Br':79.9040}
+    mx, my, mz, M = 0.0, 0.0, 0.0, 0.0
+    for atoms in mol:
+        mx += label_2_mass[atoms[0]]*atoms[1]
+        my += label_2_mass[atoms[0]]*atoms[2]
+        mz += label_2_mass[atoms[0]]*atoms[3]
+        M += label_2_mass[atoms[0]]
+    return [mx/M,my/M,mz/M]
 
 def get_coord(pdbstring):
     x = float(pdbstring[30:38])
@@ -92,6 +116,7 @@ def get_mylist(lines,point=None):
             if n != int(i[21:26]):
                 exit("wrong2")
             c = get_coord(i)
+#            com = get_com([])
             mylist.append(H2O(n,a,b,c,dist))
     return mylist
 
@@ -325,3 +350,8 @@ if args.geom:
 " + str("%.3f" % get_distance(i.o,i.h1)) + " \
 " + str("%.3f" % get_distance(i.o,i.h2)) + " \
 " + str("%.1f" % get_angle(i.h1,i.o,i.h2))
+
+a = ["O",1.0,1.0,1.0]
+b = ["H",1.0,2.0,1.0]
+c = ["H",1.0,1.0,2.0]
+print get_com([a,b,c])
