@@ -38,6 +38,9 @@ def get_beta(lines):
     list=["X","Y","Z"]
     r=[]
     betalines=get_beta_lines(lines)
+    if betalines == []:
+        return False
+#        exit("Something wrong?")
     for j in list:
         val = 0.0 
         for k in list:
@@ -119,6 +122,8 @@ for file in args.filename:
     finp.close()
 
     betas = get_beta(lines)
+    if betas is False:
+        exit(file)
     if args.dipdir:
         dip = get_perm_dipole(lines)
     elif args.xdir:
