@@ -16,7 +16,7 @@ done
 # Compute the canonicalized name by finding the physical path 
 # for the directory we're in and appending the target file.
 PHYS_DIR=`pwd -P`
-RESULT=$PHYS_DIR/$TARGET_FILE
+RESULT=$PHYS_DIR
 echo $RESULT
 
 echo $(dirname "$(readlink -f "$0")")
