@@ -5,3 +5,4 @@ print "git reset --hard <hashtag>"
 print "git submodule update"
 print "git merge --no-ff <branchname>"
 print "git co -b <branchname> origin/<branchname>"
+print 'git commit --amend -m "New commit message"'
