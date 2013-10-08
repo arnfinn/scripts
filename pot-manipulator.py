@@ -36,7 +36,6 @@ def get_removallist(potcoord,molcoord,thr):
             distlist.append(get_distance(i,j))
         if sorted(distlist)[0] > thr:
             rmlist.append(k)
-    print len(rmlist)
     return rmlist
         
 parser = ArgumentParser(description="My potential file manipulation script")
@@ -47,7 +46,11 @@ parser.add_argument("--mol",dest="molfile",
                     help="The mol input file")
 parser.add_argument("-t", "--threshold",type=float, dest="thr", default=5.0,
                     help="The threshold distance for removal of alphas")
+parser.add_argument("--xyz", action="store_true", dest="xyz", default=False, 
+                    help="Make xyz-files of mol and polarization sites")
 args = parser.parse_args()
+
+xyz = args.xyz
 
 pot = open(args.potfile,"r")
 potlines = pot.readlines()
@@ -66,7 +69,7 @@ for i in potlines:
         lmul = k
     if words[0]=="@POLARIZABILITIES":
         lpol = k
-    if words[0]=="EXCLIST":
+    if words[0]=="EXCLISTS":
         excl = k
         break
     k += 1
@@ -84,9 +87,15 @@ potcoord = []
 for i in potlines[lcoor+3:lmul]:
     potcoord.append(get_coord(i))
 
-xyz = mol2xyz(mollines)
+xyzmol = mol2xyz(mollines)
+if xyz:
+    xyz1 = open("mol.xyz","w")
+    xyz1.write(str(len(xyzmol))+"\n")
+    for i in xyzmol:
+        xyz1.write(i)
+    xyz1.close()
 molcoord = []
-for i in xyz:
+for i in xyzmol:
     molcoord.append(get_coord(i))
 
 rmlist = get_removallist(potcoord,molcoord,args.thr)
@@ -96,8 +105,23 @@ for i in potlines[0:lcoor]:
     newpot += i
 newpot += "! "+str(len(rmlist))+" alphas removed by arnfinn\n"
 
-for i in potlines[lcoor:lpol+2]:
+newpot += potlines[lcoor]+potlines[lcoor+1]+potlines[lcoor+2]
+
+k = 0
+xyzpot = ""
+for i in potlines[lcoor+3:lmul]:
     newpot += i
+    if xyz:
+        k += 1
+        if k not in rmlist:
+            xyzpot += i
+for i in potlines[lmul:lpol+2]:
+    newpot += i
+
+if xyz:
+    xyz2 = open("pot.xyz","w")
+    xyz2.write(potlines[lcoor+1]+"\n"+xyzpot)
+    xyz2.close()
 
 k = 0
 for i in potlines[lpol+3:excl]:
@@ -107,7 +131,7 @@ for i in potlines[lpol+3:excl]:
 print k
 newpot += str(k)+"\n"
 
-print  str(int(potlines[lpol+2])-k)+"\n"
+#print  str(int(potlines[lpol+2])-k)+"\n"
 
 for i in potlines[lpol+3:excl]:
     words = i.split()
