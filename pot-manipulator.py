@@ -10,10 +10,13 @@ import sys
 def mol2xyz(mollines):
     xyz = []
     if mollines[0].split()[0] == "BASIS":
-        for i in mollines[5:]:
-            words = i.split()
-            if words[0] in ["C","O","N","H"]:
-                xyz.append(i)
+        k = 5
+    elif mollines[0].split()[0] == "ATOMBASIS":
+        k = 4
+    for i in mollines[k:]:
+        words = i.split()
+        if words[0] in ["C","O","N","H"]:
+            xyz.append(i)
     return xyz
 
 def get_coord(potstring):
@@ -41,13 +44,17 @@ def get_removallist(potcoord,molcoord,thr):
 parser = ArgumentParser(description="My potential file manipulation script")
 
 parser.add_argument("-p", "--pot",dest="potfile", 
-                    help="The pdb input file")
-parser.add_argument("--mol",dest="molfile",
+                    help="The pot input file")
+parser.add_argument("-m", "--mol",dest="molfile",
                     help="The mol input file")
+parser.add_argument("-o", "--out",dest="outfile",default="tmp.pot",
+                    help="The pot output file")
 parser.add_argument("-t", "--threshold",type=float, dest="thr", default=5.0,
                     help="The threshold distance for removal of alphas")
 parser.add_argument("--xyz", action="store_true", dest="xyz", default=False, 
                     help="Make xyz-files of mol and polarization sites")
+parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
+                    help="Print more")
 args = parser.parse_args()
 
 xyz = args.xyz
@@ -128,7 +135,10 @@ for i in potlines[lpol+3:excl]:
     words = i.split()
     if int(words[0]) not in rmlist:
         k += 1
-print k
+if args.verbose:
+    print "Number of polarizable sites left are {0}".format(k)
+else:
+    print k
 newpot += str(k)+"\n"
 
 #print  str(int(potlines[lpol+2])-k)+"\n"
@@ -141,6 +151,6 @@ for i in potlines[lpol+3:excl]:
 for i in potlines[excl:]:
     newpot += i
 
-newpotfile = open("new.pot","w")
+newpotfile = open(args.outfile,"w")
 newpotfile.write(newpot)
 newpotfile.close()

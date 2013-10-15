@@ -65,7 +65,7 @@ def get_tpa_ex(file,line):
 
 def au2GM(exi_ev,sigma_au):
     lorentzian=0.0036749326 # au
-    const=1e50*8*(pi**2)*alpha*(bohr**5)/(c*lorentzian)
+    const=1e50*8*(pi**2)*alpha*(bohr**5)/(c*lorentzian*4)
     exi_au=exi_ev*eV2au
     sigma_GM=const*exi_au**2*sigma_au
     return sigma_GM
