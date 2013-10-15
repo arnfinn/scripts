@@ -65,19 +65,13 @@ for i in solute:
 tmp_file.write(tmp_text)
 tmp_file.close
 
-print all_sol[0]
 for i in all_sol:
-    if len(i) < 2:
-        print i
     tmp_file = open(args.solvent + "_" + i[0] + ".xyz","w")
     tmp_text = str(len(i)-1) + "\n\n"
     for l in i[1:]:
         tmp_text += l
     tmp_file.write(tmp_text)
     tmp_file.close()
-
-print len(all_sol)
-print all_sol[len(all_sol)-1]
 
 #make the mol file
 if mol:
