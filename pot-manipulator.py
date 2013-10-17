@@ -29,16 +29,29 @@ def get_coord(potstring):
 def get_distance(point1, point2):
     return math.sqrt(sum([(point1[i]-point2[i])**2 for i in range(3)]))
 
-def get_removallist(potcoord,molcoord,thr):
+def get_removallist(potcoord,molcoord,thr,water):
     k = 0
     rmlist = []
+    tmplist = []
+    l = 0
     for i in potcoord:
         k += 1
+        l += 1
         distlist = []
         for j in molcoord:
             distlist.append(get_distance(i,j))
         if sorted(distlist)[0] > thr:
-            rmlist.append(k)
+            if water:
+                tmplist.append(k)
+            else:
+                rmlist.append(k)
+        if water:
+            if len(tmplist) == 3:
+                rmlist.extend(tmplist)
+            if l == 3:
+                l = 0
+                tmplist = []
+
     return rmlist
         
 parser = ArgumentParser(description="My potential file manipulation script")
@@ -53,6 +66,8 @@ parser.add_argument("-t", "--threshold",type=float, dest="thr", default=5.0,
                     help="The threshold distance for removal of alphas")
 parser.add_argument("--xyz", action="store_true", dest="xyz", default=False, 
                     help="Make xyz-files of mol and polarization sites")
+parser.add_argument("-w", "--water", action="store_true", dest="water", default=False, 
+                    help="Water cluster (remove site only if all water sites are outside threshold)")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
 args = parser.parse_args()
@@ -95,22 +110,24 @@ for i in potlines[lcoor+3:lmul]:
     potcoord.append(get_coord(i))
 
 xyzmol = mol2xyz(mollines)
-if xyz:
-    xyz1 = open("mol.xyz","w")
-    xyz1.write(str(len(xyzmol))+"\n")
-    for i in xyzmol:
-        xyz1.write(i)
-    xyz1.close()
 molcoord = []
 for i in xyzmol:
     molcoord.append(get_coord(i))
 
-rmlist = get_removallist(potcoord,molcoord,args.thr)
+rmlist = get_removallist(potcoord,molcoord,args.thr,args.water)
+
+if xyz:
+    xyz1 = open("test.xyz","w")
+    xyz1.write(str(len(xyzmol))+"\n")
+    for i in xyzmol:
+        xyz1.write(i)
+    xyz1.close()
 
 newpot = ""
 for i in potlines[0:lcoor]:
     newpot += i
-newpot += "! "+str(len(rmlist))+" alphas removed by arnfinn\n"
+newpot += "! {0} alphas removed by arnfinn\n".format(str(len(rmlist)))
+newpot += "! outside a threshold of {0} angstrom\n".format(args.thr)
 
 newpot += potlines[lcoor]+potlines[lcoor+1]+potlines[lcoor+2]
 
@@ -138,7 +155,7 @@ for i in potlines[lpol+3:excl]:
 if args.verbose:
     print "Number of polarizable sites left are {0}".format(k)
 else:
-    print k
+    print "{0}    {1}".format(args.thr,k)
 newpot += str(k)+"\n"
 
 #print  str(int(potlines[lpol+2])-k)+"\n"

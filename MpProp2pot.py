@@ -48,8 +48,9 @@ class MpProp2pot:
 
             # coordinates
             k+=1
-            txt += self.add_nums(self.lines[k])
-            coor.append(self.add_nums(self.lines[k]))
+            newline = self.au2aa(self.lines[k])
+            txt += self.add_nums(newline)
+            coor.append(self.add_nums(newline))
             # charge
             k+=1
             txt += self.add_nums(self.lines[k])
@@ -125,6 +126,15 @@ class MpProp2pot:
             return self.list[ele]
         except:
             exit("Element "+ele+" not in list. Please add it!")
+
+    def au2aa(self,line):
+        num = line.split()
+        newline = ""
+        for i in num:
+            newnum = float(i)*0.529177249
+            a = 7-len(str(newnum).split(".")[0])
+            newline+=a*" "+"%.8f" % newnum
+        return newline
 
 
 def checkEqual(iterator):
@@ -211,6 +221,7 @@ if not checkEqual(polarilist):
 
 # making the pot file
 if args.oldpot: # NOT WORKING ANYMORE
+    quit("Old output not working anymore")
     mypot="AU\n {0} {1} {2} 1 1\n".format(totatom, mulpollist[0], polarilist[0])
     k = 0
     for i in textlist:
@@ -225,11 +236,15 @@ else:
     mult = ["","",""]
     pol  = ""
     atom, oldatom = 0, 0
+    site = 0
+    oldsite = 0
     polsites = 0
     for i in textlist:
         for j in range(len(i[0])):
             # coordinates
-            coor +=i[0][j] + i[1][j] + "\n"
+            site += 1
+            a = 10-len(str(site))
+            coor +=i[0][j] + i[1][j] + a*" " + str(site) + "\n"
         for j in range(len(i[2])):
             atom = oldatom
             for k in i[2][j]:

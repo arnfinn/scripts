@@ -8,19 +8,39 @@ from argparse import ArgumentParser
 import sys
 
 def get_xyz(line):
-    xyz = line[76:78] + 4*" " + line[31:39] + 4*" " + line[39:47] + 4*" " + line[47:55] + "\n"
+    xyz = line[76:78] + 4*" "  +line[31:39] + 4*" " + line[39:47] + 4*" " + line[47:55] + "\n"
     return xyz
-#    return [float(line[31:39]),float(line[39:47]),float(line[47:55]])
+
+def get_pdbcoord(line):
+    # return the coordinate of from a pdb line
+    return [float(line[31:39]),float(line[39:47]),float(line[47:55])]
+
+def get_xyzcoord(line):
+    # return the coordinate of from a xyz line
+    words = line.split()
+    return [float(words[1]),float(words[2]),float(words[3])]
+
+def get_distance(coord1,coord2):
+    a=[]
+    if len(coord1)==len(coord2):
+        for i in range(len(coord1)):
+            vec=coord1[i]-coord2[i]
+            vec2=vec*vec
+            a.append(vec2)
+    else:
+        print "something wrong..."
+    return math.sqrt(sum([a[i] for i in range(len(a))]))
 
 
-parser = ArgumentParser(description="My potential file manipulation script")
-parser.add_argument("-p", "--pot",dest="potfile", help="The pdb input file")
+parser = ArgumentParser(description="My pdb file manipulation script")
 
 parser.add_argument("-i", "--input",dest="filename", help="The input file")
 parser.add_argument("-d", "--mol",action="store_true",default=False, dest="mol", help="Make a mol-file of the solute for Dalton")
 parser.add_argument("-r", "--residue",dest="res", type=int, default=1, help="The solute residue number")
 parser.add_argument("--solute",dest="solute", default="indole", help="The name of the solute")
 parser.add_argument("--solvent",dest="solvent", default="water", help="The name of the solvent")
+parser.add_argument("-t","--threshold",dest="thres",type=float, default=25.0, 
+                    help="remove molecules outside a given threshold from the solute atoms [default: %(default)s]")
 
 args = parser.parse_args()
 file = args.filename
@@ -65,16 +85,35 @@ for i in solute:
 tmp_file.write(tmp_text)
 tmp_file.close
 
+reduced_xyz = []
 for i in all_sol:
-    tmp_file = open(args.solvent + "_" + i[0] + ".xyz","w")
-    tmp_text = str(len(i)-1) + "\n\n"
-    for l in i[1:]:
-        tmp_text += l
-    tmp_file.write(tmp_text)
-    tmp_file.close()
+    store = False
+    for j in i[1:]:
+        for k in solute:
+            coord_solvent = get_xyzcoord(j)
+            coord_solute  = get_xyzcoord(k)
+            if get_distance(coord_solvent,coord_solute)<args.thres:
+                store = True
+    if store:
+        tmp_file = open(args.solvent + "_" + i[0] + ".xyz","w")
+        tmp_text = str(len(i)-1) + "\n\n"
+        for l in i[1:]:
+            tmp_text += l
+            reduced_xyz.append(l)
+        tmp_file.write(tmp_text)
+        tmp_file.close()
+
+tmp_file = open(args.solvent + "_all.xyz","w")
+tmp_text = str(len(reduced_xyz)) + "\n\n"
+for i in reduced_xyz:
+    tmp_text += i
+tmp_file.write(tmp_text)
+tmp_file.close()
+
 
 #make the mol file
 if mol:
+    quit("mol-file making not working yet")
     pdbfile=open(file[0:b-4]+'-chrom'+file[b-4:b],'r')
     lines=pdbfile.readlines()
     atomele=["C","O","N","S","H"]
