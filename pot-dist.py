@@ -41,7 +41,7 @@ def get_dist(potcoord,molcoord,site):
         
 parser = ArgumentParser(description="My potential distance script")
 
-parser.add_argument("-p", "--pot",dest="potfile",required=True, 
+parser.add_argument("-p", "--pot",dest="potfile", required=True,
                     help="The pot input file")
 parser.add_argument("-m", "--mol",dest="molfile",required=True,
                     help="The mol input file")

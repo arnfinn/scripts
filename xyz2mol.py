@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Arnfinn Hykkerud Steindal, Tromso Oct. 2010
 # Converts a xyz-file to a mol-file for Dalton
 # TODO: 1) convert from au to angstrom, if needed
@@ -10,18 +10,20 @@ import shutil
 import string
 import os
 
-from optparse import OptionParser
+#from optparse import OptionParser
+import argparse as ap
 
 
-parser = OptionParser()
-parser.add_option("-i", "--input",dest="filename", help="the file to read")
-parser.add_option("-b", "--basis",dest="basisset", default='6-31+G*', help="the basisset")
-parser.add_option("-q", "--charge",dest="charge", help="the molecular charge, +, - or 0")
+parser = ap.ArgumentParser()
+parser.add_argument("-i", "--input",dest="filename", help="the file to read")
+parser.add_argument("-b", "--basis",dest="basisset", default='6-31+G*', help='''the basisset. [default: %(default)s]''')
+parser.add_argument("-q", "--charge",dest="charge", help='''the molecular charge, +, - or 0''')
 
-(options, args) = parser.parse_args()
-filename=options.filename
-basis = options.basisset
-charge=options.charge
+args = parser.parse_args()
+
+filename=args.filename
+basis = args.basisset
+charge=args.charge
 if charge:
     if charge not in ["0","+","-"]:
         print "WARNING: "+charge + " not a valid charge"

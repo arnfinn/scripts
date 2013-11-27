@@ -29,11 +29,18 @@ def get_coord(potstring):
 def get_distance(point1, point2):
     return math.sqrt(sum([(point1[i]-point2[i])**2 for i in range(3)]))
 
-def get_removallist(potcoord,molcoord,thr,water):
+def get_removallist(potcoord,molcoord,thr,water,hexane):
     k = 0
-    rmlist = []
+    rmpol = []
     tmplist = []
     l = 0
+    if water:
+        atoms = 3
+    elif hexane:
+        atoms = 20
+    else:
+        atoms = 1
+
     for i in potcoord:
         k += 1
         l += 1
@@ -41,33 +48,37 @@ def get_removallist(potcoord,molcoord,thr,water):
         for j in molcoord:
             distlist.append(get_distance(i,j))
         if sorted(distlist)[0] > thr:
-            if water:
+            if water or hexane:
                 tmplist.append(k)
             else:
-                rmlist.append(k)
-        if water:
-            if len(tmplist) == 3:
-                rmlist.extend(tmplist)
-            if l == 3:
+                rmpol.append(k)
+        if water or hexane:
+            if len(tmplist) == atoms:
+                rmpol.extend(tmplist)
+            if l == atoms:
                 l = 0
                 tmplist = []
+    return rmpol
 
-    return rmlist
-        
+
 parser = ArgumentParser(description="My potential file manipulation script")
 
-parser.add_argument("-p", "--pot",dest="potfile", 
+parser.add_argument("-p", "--pot",dest="potfile", required=True,
                     help="The pot input file")
-parser.add_argument("-m", "--mol",dest="molfile",
+parser.add_argument("-m", "--mol",dest="molfile", required=True,
                     help="The mol input file")
 parser.add_argument("-o", "--out",dest="outfile",default="tmp.pot",
                     help="The pot output file")
-parser.add_argument("-t", "--threshold",type=float, dest="thr", default=5.0,
+parser.add_argument("-t", "--thrpol",type=float, dest="thrpol", default=5.0,
                     help="The threshold distance for removal of alphas")
+parser.add_argument("-t2", "--thrmul",type=float, dest="thrmul",
+                    help="The threshold distance for removal of multipoles")
 parser.add_argument("--xyz", action="store_true", dest="xyz", default=False, 
-                    help="Make xyz-files of mol and polarization sites")
+                    help="Make xyz-files of polarization sites (and multipoles if requested)")
 parser.add_argument("-w", "--water", action="store_true", dest="water", default=False, 
                     help="Water cluster (remove site only if all water sites are outside threshold)")
+parser.add_argument("--hexane", action="store_true", dest="hexane", default=False, 
+                    help="Hexane cluster (remove site only if all hexane sites are outside threshold)")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
 args = parser.parse_args()
@@ -114,55 +125,53 @@ molcoord = []
 for i in xyzmol:
     molcoord.append(get_coord(i))
 
-rmlist = get_removallist(potcoord,molcoord,args.thr,args.water)
-
-if xyz:
-    xyz1 = open("test.xyz","w")
-    xyz1.write(str(len(xyzmol))+"\n")
-    for i in xyzmol:
-        xyz1.write(i)
-    xyz1.close()
+rmpol = get_removallist(potcoord,molcoord,args.thrpol,args.water,args.hexane)
+polleft = int(potlines[lpol+2])-len(rmpol)
+if args.thrmul:
+    rmmul =  get_removallist(potcoord,molcoord,args.thrmul,args.water,args.hexane)
+    mulleft = int(potlines[lcoor+1])-len(rmmul)
 
 newpot = ""
 for i in potlines[0:lcoor]:
     newpot += i
-newpot += "! {0} alphas removed by arnfinn\n".format(str(len(rmlist)))
-newpot += "! outside a threshold of {0} angstrom\n".format(args.thr)
+newpot += "! {0} alphas removed by arnfinn\n".format(str(len(rmpol)))
+newpot += "! outside a threshold of {0} angstrom\n".format(args.thrpol)
+if args.thrmul:
+    newpot += "! {0} MM sites removed with threshold {1} AA.\n".format(str(len(rmmul)),args.thrmul)
 
 newpot += potlines[lcoor]+potlines[lcoor+1]+potlines[lcoor+2]
 
-k = 0
-xyzpot = ""
 for i in potlines[lcoor+3:lmul]:
     newpot += i
-    if xyz:
-        k += 1
-        if k not in rmlist:
-            xyzpot += i
-for i in potlines[lmul:lpol+2]:
-    newpot += i
 
-if xyz:
-    xyz2 = open("pot.xyz","w")
-    xyz2.write(potlines[lcoor+1]+"\n"+xyzpot)
-    xyz2.close()
-
-k = 0
-for i in potlines[lpol+3:excl]:
-    words = i.split()
-    if int(words[0]) not in rmlist:
-        k += 1
-if args.verbose:
-    print "Number of polarizable sites left are {0}".format(k)
+if args.thrmul:
+    # remove multipoles...
+    begin = False
+    newpot += potlines[lmul]
+    for i in potlines[lmul+1:lpol]:
+        words = i.split()
+        if words[0] == "ORDER":
+            order = int(words[1])
+            begin = True
+            newpot += i
+        elif begin:
+            newpot += str(int(potlines[lcoor+1])-len(rmmul)) + "\n"
+            begin = False
+        elif int(words[0]) not in rmmul:
+            newpot += i
+#        else:
+#            print i
+    newpot += potlines[lpol] + potlines[lpol+1] 
 else:
-    print "{0}    {1}".format(args.thr,k)
-newpot += str(k)+"\n"
+    for i in potlines[lmul:lpol+2]:
+        newpot += i
 
-#print  str(int(potlines[lpol+2])-k)+"\n"
+
+newpot += "{0}\n".format(polleft)
 
 for i in potlines[lpol+3:excl]:
     words = i.split()
-    if int(words[0]) not in rmlist:
+    if int(words[0]) not in rmpol:
         newpot += i
 
 for i in potlines[excl:]:
@@ -171,3 +180,43 @@ for i in potlines[excl:]:
 newpotfile = open(args.outfile,"w")
 newpotfile.write(newpot)
 newpotfile.close()
+
+if args.verbose:
+    print "Number of polarizable sites left with threshold {0} are {1}".format(args.thrpol,polleft)
+    if args.thrmul:
+        print "Number of multipoles sites left with threshold {0} are {1}".format(args.thrmul,mulleft)
+else:
+    print "{0}    {1}".format(args.thrpol,polleft)
+
+# Make xyz files
+if xyz:
+    k = 0
+    xyzpot = ""
+    xyzmul = ""
+    for i in potlines[lcoor+3:lmul]:
+        k += 1
+        if k not in rmpol:
+            xyzpot += i
+        if args.thrmul:
+            if k not in rmmul:
+                xyzmul += i
+
+    xyz2 = open("pot.xyz","w")
+    xyz2.write("{0}\n".format(polleft)+xyzpot)
+    xyz2.close()
+    if args.thrmul:
+        xyz2 = open("mul.xyz","w")
+        xyz2.write("{0}\n".format(mulleft)+xyzmul)
+        xyz2.close()
+
+
+
+# A test:
+k = 0
+for i in potlines[lpol+3:excl]:
+    words = i.split()
+    if int(words[0]) not in rmpol:
+        k += 1
+if k != polleft:
+    print "Something wrong! k ({0}) not equatl polleft ({1})".format(k,polleft)
+

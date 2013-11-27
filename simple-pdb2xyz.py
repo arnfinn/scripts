@@ -34,11 +34,11 @@ def get_distance(coord1,coord2):
 
 parser = ArgumentParser(description="My pdb file manipulation script")
 
-parser.add_argument("-i", "--input",dest="filename", help="The input file")
+parser.add_argument("-i", "--input",dest="filename", required=True, help="The input file")
 parser.add_argument("-d", "--mol",action="store_true",default=False, dest="mol", help="Make a mol-file of the solute for Dalton")
 parser.add_argument("-r", "--residue",dest="res", type=int, default=1, help="The solute residue number")
-parser.add_argument("--solute",dest="solute", default="indole", help="The name of the solute")
-parser.add_argument("--solvent",dest="solvent", default="water", help="The name of the solvent")
+parser.add_argument("--solute",dest="solute", default="indole",required=True, help="The name of the solute")
+parser.add_argument("--solvent",dest="solvent", default="water",required=True, help="The name of the solvent")
 parser.add_argument("-t","--threshold",dest="thres",type=float, default=25.0, 
                     help="remove molecules outside a given threshold from the solute atoms [default: %(default)s]")
 
@@ -86,6 +86,7 @@ tmp_file.write(tmp_text)
 tmp_file.close
 
 reduced_xyz = []
+count = 0
 for i in all_sol:
     store = False
     for j in i[1:]:
@@ -95,6 +96,7 @@ for i in all_sol:
             if get_distance(coord_solvent,coord_solute)<args.thres:
                 store = True
     if store:
+        count += 1
         tmp_file = open(args.solvent + "_" + i[0] + ".xyz","w")
         tmp_text = str(len(i)-1) + "\n\n"
         for l in i[1:]:
@@ -102,7 +104,7 @@ for i in all_sol:
             reduced_xyz.append(l)
         tmp_file.write(tmp_text)
         tmp_file.close()
-
+print count
 tmp_file = open(args.solvent + "_all.xyz","w")
 tmp_text = str(len(reduced_xyz)) + "\n\n"
 for i in reduced_xyz:

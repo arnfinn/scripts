@@ -146,9 +146,9 @@ def checkEqual(iterator):
         return True
 
 parser = ap.ArgumentParser(description='Molcas MpProp to Dalton pot converter')
-parser.add_argument('-i', dest='MpProp', metavar='MpProp_FILE', nargs='+',
+parser.add_argument('-i', dest='MpProp', metavar='MpProp_FILE', nargs='+',required=True,
                     help='''the name of the MolCas MpProp input files.''')
-parser.add_argument('-o', dest='potfile', metavar='POT_FILE',
+parser.add_argument('-o', dest='potfile', metavar='POT_FILE',required=True,
                     help='''the name of the Dalton pot input file.''')
 parser.add_argument('-f', dest='force', action='store_true',
                     default=False,

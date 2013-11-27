@@ -61,6 +61,7 @@ parser.add_option("-p", "--print",action="store_true", default=False, dest="prin
 parser.add_option("--ev2nm",action="store_true", default=False, dest="ev2nm", help="Convert from eV to nm before calculating average")
 parser.add_option("--av2",action="store_true", default=False, dest="aver2", help="Calculate the average of numbers where two are weighted")
 parser.add_option("--deg",action="store_true", default=False, dest="deg", help="Calculate the average of degrees (problem with numbers around zero)")
+parser.add_option("--simple",action="store_true", default=False, dest="simple", help="Simple print layout (average stdev)")
 parser.add_option("--avnum",type="int", dest="avernum", default=0,help="Calculate the average of the N first values")
 (options, args) = parser.parse_args()
 file = open(options.filename,'r')
@@ -106,8 +107,11 @@ else:
     ave = aver(tab)
     stan = stdev(tab)
 
-print "Number of values = "+str(len(tab))
-string = "Average value = %."+dec+"f"
-print string % (ave)
-string = "Standard deviation = %."+dec+"f"
-print string % (stan)
+if options.simple:
+    print str(ave) + "  " + str(stan)
+else:
+    print "Number of values = "+str(len(tab))
+    string = "Average value = %."+dec+"f"
+    print string % (ave)
+    string = "Standard deviation = %."+dec+"f"
+    print string % (stan)
