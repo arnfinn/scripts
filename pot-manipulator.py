@@ -29,18 +29,12 @@ def get_coord(potstring):
 def get_distance(point1, point2):
     return math.sqrt(sum([(point1[i]-point2[i])**2 for i in range(3)]))
 
-def get_removallist(potcoord,molcoord,thr,water,hexane):
+def get_removallist(potcoord,molcoord,thr,atoms):
+    # atoms = number of atoms per solvent
     k = 0
+    l = 0
     rmpol = []
     tmplist = []
-    l = 0
-    if water:
-        atoms = 3
-    elif hexane:
-        atoms = 20
-    else:
-        atoms = 1
-
     for i in potcoord:
         k += 1
         l += 1
@@ -48,11 +42,11 @@ def get_removallist(potcoord,molcoord,thr,water,hexane):
         for j in molcoord:
             distlist.append(get_distance(i,j))
         if sorted(distlist)[0] > thr:
-            if water or hexane:
-                tmplist.append(k)
-            else:
+            if atoms == 1:
                 rmpol.append(k)
-        if water or hexane:
+            else:
+                tmplist.append(k)
+        if atoms != 1:#water or hexane:
             if len(tmplist) == atoms:
                 rmpol.extend(tmplist)
             if l == atoms:
@@ -79,6 +73,10 @@ parser.add_argument("-w", "--water", action="store_true", dest="water", default=
                     help="Water cluster (remove site only if all water sites are outside threshold)")
 parser.add_argument("--hexane", action="store_true", dest="hexane", default=False, 
                     help="Hexane cluster (remove site only if all hexane sites are outside threshold)")
+parser.add_argument("-a", "--atoms",type=int, dest="atoms",
+                    help="Number of atoms in the solvent molecule")
+parser.add_argument("-s", "--solvent", dest="solvent",
+                    help="Name of the solvent")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
 args = parser.parse_args()
@@ -125,10 +123,30 @@ molcoord = []
 for i in xyzmol:
     molcoord.append(get_coord(i))
 
-rmpol = get_removallist(potcoord,molcoord,args.thrpol,args.water,args.hexane)
+if args.solvent:
+    sol_dict = {
+        "hexane":20,
+        "water":3,
+        "methanol":6,
+        "tetra":5
+        }
+    try:
+        numatom = sol_dict[args.solvent]
+    except:
+        quit("Solvent {0} not known".format(args.solvent))
+elif args.atoms:
+    numatom = args.atoms
+elif args.water:
+    numatom = 3
+elif args.hexane:
+    numatom = 20
+else:
+    numatom = 1
+
+rmpol = get_removallist(potcoord,molcoord,args.thrpol,numatom)
 polleft = int(potlines[lpol+2])-len(rmpol)
 if args.thrmul:
-    rmmul =  get_removallist(potcoord,molcoord,args.thrmul,args.water,args.hexane)
+    rmmul =  get_removallist(potcoord,molcoord,args.thrmul,numatom)
     mulleft = int(potlines[lcoor+1])-len(rmmul)
 
 newpot = ""
