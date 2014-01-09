@@ -154,6 +154,10 @@ parser.add_argument('-f', dest='force', action='store_true',
                     default=False,
                     help='''Force overwriting old pot file
                             [default: %(default)s]''')
+parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                    default=False,
+                    help='''Verbose printing
+                            [default: %(default)s]''')
 parser.add_argument('--old', dest='oldpot', action='store_true',
                     default=False,
                     help='''Old pot file format
@@ -164,6 +168,9 @@ if not args.MpProp:
     exit('You must specify at least one .MpProp input file.')
 else:
     MpProp = args.MpProp
+
+if args.verbose:
+    print len(args.MpProp)
 
 if not args.potfile:
     # if no pot-file given, name it as the first MpProp-file
@@ -214,8 +221,8 @@ if not checkEqual(polarilist):
     print("Your MpProp input files have not the same multipole orders")
     print("The mulpol orders are {0} and {1} for the files\n"
           "{2} and {3} respectively".format(
-            ', '.join(str(i) for i in mulpollist[:-1]),
-            str(mulpollist[-1]),', '.join(str(i) for i in MpProp[:-1]), 
+            ', '.join(str(i) for i in polarilist[:-1]),
+            str(polarilist[-1]),', '.join(str(i) for i in MpProp[:-1]), 
             str(MpProp[-1])))
     exit()
 

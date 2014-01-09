@@ -28,7 +28,7 @@ def get_distance(coord1,coord2):
             vec2=vec*vec
             a.append(vec2)
     else:
-        print "something wrong..."
+        quit("something wrong...")
     return math.sqrt(sum([a[i] for i in range(len(a))]))
 
 
@@ -36,6 +36,7 @@ parser = ArgumentParser(description="My pdb file manipulation script")
 
 parser.add_argument("-i", "--input",dest="filename", required=True, help="The input file")
 parser.add_argument("-d", "--mol",action="store_true",default=False, dest="mol", help="Make a mol-file of the solute for Dalton")
+parser.add_argument("-p", "--pdb",dest="pdb", help="Make a pdb-file with given filename of the remaining solvent molecules")
 parser.add_argument("-r", "--residue",dest="res", type=int, default=1, help="The solute residue number")
 parser.add_argument("--solute",dest="solute", default="indole",required=True, help="The name of the solute")
 parser.add_argument("--solvent",dest="solvent", default="water",required=True, help="The name of the solvent")
@@ -58,6 +59,10 @@ all_sol = []
 solute = []
 old_resi = -999
 first = True
+if args.pdb:
+    quit("pdb not implemented yet!")
+    newpdb = []
+
 for line in infile.readlines():
     if len(line) > 65:
         if line[0:4]=="ATOM" or line[0:4]=="HETA":
@@ -66,6 +71,8 @@ for line in infile.readlines():
             if resi==res:
                 res_found = True
                 solute.append(xyzline)
+                if args.pdb:
+                    newpdb.append(line)
             elif resi == old_resi:
                 solvent.append(xyzline)
             else:

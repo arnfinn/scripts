@@ -16,7 +16,7 @@ import argparse as ap
 
 parser = ap.ArgumentParser()
 parser.add_argument("-i", "--input",dest="filename", help="the file to read")
-parser.add_argument("-b", "--basis",dest="basisset", default='6-31+G*', help='''the basisset. [default: %(default)s]''')
+parser.add_argument("-b", "--basis",dest="basisset", default='aug-cc-pVDZ', help='''the basisset. [default: %(default)s]''')
 parser.add_argument("-q", "--charge",dest="charge", help='''the molecular charge, +, - or 0''')
 
 args = parser.parse_args()

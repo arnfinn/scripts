@@ -6,6 +6,7 @@
 import math
 from argparse import ArgumentParser
 import sys
+import time
 
 def mol2xyz(mollines):
     xyz = []
@@ -15,8 +16,11 @@ def mol2xyz(mollines):
         k = 4
     for i in mollines[k:]:
         words = i.split()
-        if words[0] in ["C","O","N","H"]:
-            xyz.append(i)
+        try:
+            if words[0] in ["C","O","N","H"]:
+                xyz.append(i)
+        except:
+            pass
     return xyz
 
 def get_coord(potstring):
@@ -79,6 +83,8 @@ parser.add_argument("-s", "--solvent", dest="solvent",
                     help="Name of the solvent")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
+first_time = time.time()
+
 args = parser.parse_args()
 
 xyz = args.xyz
@@ -104,6 +110,14 @@ for i in potlines:
         excl = k
         break
     k += 1
+
+# Check that number of coordinates equals 
+# number of pol. and multipols
+num_coord = int(potlines[lcoor+1])
+num_mul   = int(potlines[lmul+2])
+num_pol   = int(potlines[lpol+2])
+if num_mul != num_coord or num_pol != num_coord:
+    quit("Number of coordinates ({0}) not equal number of multipoles ({1}) and/or polarizabilities ({2}) (diff {3}).".format(num_coord,num_mul,num_pol,num_coord-num_mul))
 
 totnum = int(potlines[lcoor + 1])
 if potlines[lcoor+2].split()[0] == "AA":
@@ -143,10 +157,11 @@ elif args.hexane:
 else:
     numatom = 1
 
-rmpol = get_removallist(potcoord,molcoord,args.thrpol,numatom)
+rmpol = set(get_removallist(potcoord,molcoord,args.thrpol,numatom))
 polleft = int(potlines[lpol+2])-len(rmpol)
+
 if args.thrmul:
-    rmmul =  get_removallist(potcoord,molcoord,args.thrmul,numatom)
+    rmmul =  set(get_removallist(potcoord,molcoord,args.thrmul,numatom))
     mulleft = int(potlines[lcoor+1])-len(rmmul)
 
 newpot = ""
@@ -177,13 +192,10 @@ if args.thrmul:
             begin = False
         elif int(words[0]) not in rmmul:
             newpot += i
-#        else:
-#            print i
     newpot += potlines[lpol] + potlines[lpol+1] 
 else:
     for i in potlines[lmul:lpol+2]:
         newpot += i
-
 
 newpot += "{0}\n".format(polleft)
 
@@ -238,3 +250,6 @@ for i in potlines[lpol+3:excl]:
 if k != polleft:
     print "Something wrong! k ({0}) not equatl polleft ({1})".format(k,polleft)
 
+if args.verbose:
+    last_time = time.time()
+    print "Seconds used: {0}".format(last_time - first_time)
