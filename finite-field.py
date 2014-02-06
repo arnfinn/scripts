@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Arnfinn Hykkerud Steindal, Tromso Jan. 2014
 # Finite field
 # using 5-point stencil
