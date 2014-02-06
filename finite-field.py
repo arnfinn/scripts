@@ -75,7 +75,7 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
                 tmp_file.close()
     return all_files
 
-def run_dalton(exc=exc,dal=dal,mol=mol,cores=cores):
+def run_dalton(exc="dalton",dal="input",mol="input",cores="1"):
     dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-N", cores, dal, mol]
     try:
         subprocess.call(dalinp)
