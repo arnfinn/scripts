@@ -75,8 +75,8 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
                 tmp_file.close()
     return all_files
 
-def run_dalton(exc,dal,mol):
-    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", dal, mol]
+def run_dalton(exc=exc,dal=dal,mol=mol,cores=cores):
+    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-N", cores, dal, mol]
     try:
         subprocess.call(dalinp)
     except:
@@ -105,6 +105,8 @@ parser.add_argument("-d", "--dal",dest="dalfile", required=True,
                     help="The dalton-openrsp input file. Remember .FIELD XX; XX will be replaced by field")
 parser.add_argument("-x", "--executable", dest="execute", required=True,
                     help="The (dalton) executable")
+parser.add_argument("-N", "--nodes", dest="nodes", default="1"
+                    help="number of nodes/cores to run dalton [default: %(default)s]")
 parser.add_argument("--two", action="store_true", dest="two", default=False, 
                     help="Finite field with two intead of four points.")
 parser.add_argument("--dryrun", action="store_true", dest="dryrun", default=False, 
@@ -126,7 +128,7 @@ new_dal = make_new_dal(args.dalfile, args.field, two=args.two, dryrun=args.dryru
 
 for i in new_dal:
     if not args.dryrun:
-        run_dalton(args.execute,i,args.molfile)
+        run_dalton(exc=args.execute,dal=i,mol=args.molfile,cores=args.nodes)
 
 # The names of the tensor files produced by dalton
 tensor_out = []
