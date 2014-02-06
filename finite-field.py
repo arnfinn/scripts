@@ -148,7 +148,7 @@ else:
 
 # Use tensor_data to make higher order tensor
 for i in range(3): # X Y and Z
-    for j in range(len(tensor_data[0])): # read all lines in files
+    for j in range(len(tensor_data[0])-1): # read all lines, except last, in files
         line = ""
         for k in range(3): # three numbers in a row
             t = []
