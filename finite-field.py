@@ -105,7 +105,7 @@ parser.add_argument("-d", "--dal",dest="dalfile", required=True,
                     help="The dalton-openrsp input file. Remember .FIELD XX; XX will be replaced by field")
 parser.add_argument("-x", "--executable", dest="execute", required=True,
                     help="The (dalton) executable")
-parser.add_argument("-N", "--nodes", dest="nodes", default="1"
+parser.add_argument("-N", "--nodes", dest="nodes", default="1",
                     help="number of nodes/cores to run dalton [default: %(default)s]")
 parser.add_argument("--two", action="store_true", dest="two", default=False, 
                     help="Finite field with two intead of four points.")
