@@ -16,7 +16,7 @@ tar -ztvf file.tar.gz
 tar --extract --file=file.tar.gz filename 
 
 --- add line after line ---
-sed '/patternstring/ a\
+sed '/patternstring/ a\\
 new line string' file1
 
 --- number of lines in a directory ---
