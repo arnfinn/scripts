@@ -21,6 +21,15 @@ new line string' file1
 
 --- number of lines in a directory ---
 ls -1 targetdir | wc -l
+
+xxxxxxxxxxxxxxxxxxxx
+xxx git commands xxx
+xxxxxxxxxxxxxxxxxxxx
+
+git bisect start
+git bisect bad
+git bisect good
+git bisect reset
 """
 
 print "find . -type f -print0 | xargs -0 sed -i -c 's/\-lt/\-ne/g'"
