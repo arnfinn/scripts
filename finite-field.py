@@ -42,8 +42,9 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
     # make four dal-files with different field strength
     # Replace the two lines after .FIELD, otherwise use
     # the original dalton file
-    dallines = read_file(old_dal)
-    check_dal(dallines)
+    if not dryrun:
+        dallines = read_file(old_dal)
+        check_dal(dallines)
     all_files = []
     h = float(h)
     prev = "rubish"
@@ -56,27 +57,28 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
         num = 0
         for j in fields:
             num += 1
-            newdal = ""
-            for k in dallines:
-                if prev[0:6]==".FIELD":
-                    newdal += "{0}\n".format(j)
-                    prev = "direction"
-                elif prev=="direction":
-                    newdal += "{0}\n".format(i)
-                    prev = "rubish"
-                else:
-                    newdal += "{0}".format(k)
-                    prev = k
             dalname = "{0}_{1}_{2}.dal".format(old_dal.split(".")[0],i,num)
             all_files.append(dalname)
             if not dryrun:
+                newdal = ""
+                for k in dallines:
+                    if prev[0:6]==".FIELD":
+                        newdal += "{0}\n".format(j)
+                        prev = "direction"
+                    elif prev=="direction":
+                        newdal += "{0}\n".format(i)
+                        prev = "rubish"
+                    else:
+                        newdal += "{0}".format(k)
+                        prev = k
                 tmp_file = open(dalname,"w")
                 tmp_file.write(newdal)
                 tmp_file.close()
+    print all_files
     return all_files
 
-def run_dalton(exc="dalton",dal="input",mol="input",cores="1"):
-    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-N", cores, dal, mol]
+def run_dalton(exc="dalton",dal="input",mol="input",pot="", cores="1"):
+    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-N", cores, dal, mol, pot]
     try:
         subprocess.call(dalinp)
     except:
@@ -99,10 +101,12 @@ parser = ArgumentParser(description="My potential file manipulation script")
 
 parser.add_argument("-f", "--field",dest="field", type=float, default=0.001,
                     help="The field strength [default: %(default)s]")
-parser.add_argument("-m", "--mol",dest="molfile", required=True,
-                    help="The mol input file")
 parser.add_argument("-d", "--dal",dest="dalfile", required=True,
                     help="The dalton-openrsp input file. Remember .FIELD XX; XX will be replaced by field")
+parser.add_argument("-m", "--mol",dest="molfile", required=True,
+                    help="The mol input file")
+parser.add_argument("-p", "--pot",dest="potfile", default="",
+                    help="pot input file")
 parser.add_argument("-x", "--executable", dest="execute", required=True,
                     help="The (dalton) executable")
 parser.add_argument("-N", "--nodes", dest="nodes", default="1",
@@ -128,12 +132,15 @@ new_dal = make_new_dal(args.dalfile, args.field, two=args.two, dryrun=args.dryru
 
 for i in new_dal:
     if not args.dryrun:
-        run_dalton(exc=args.execute,dal=i,mol=args.molfile,cores=args.nodes)
+        run_dalton(exc=args.execute,dal=i,mol=args.molfile,pot=args.potfile,cores=args.nodes)
 
 # The names of the tensor files produced by dalton
 tensor_out = []
 for i in new_dal:
-    tensor_out.append("{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0]))
+    if args.potfile:
+        tensor_out.append("{0}_{1}_{2}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0], args.potfile.split(".")[0]))
+    else:
+        tensor_out.append("{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0]))
 
 # Read tensor data
 tensor_data = []

@@ -51,8 +51,10 @@ for i in tensor:
     except:
         pass
 
-beta, gamma, delta = False, False, False
-if len(tensor_array) == 27:
+alpha, beta, gamma, delta = False, False, False, False
+if len(tensor_array) == 9:
+    alpha = True
+elif len(tensor_array) == 27:
     beta = True
 elif len(tensor_array) == 81:
     gamma = True
@@ -60,10 +62,10 @@ elif len(tensor_array) == 243:
     delta = True
 else:
     quit("Something wrong with input file {0}.\n\
-Number of elements in the tensor ({1}) not equal 27, 81 or 243".format(args.input,len(tensor_array)))
+Number of elements in the tensor ({1}) not equal 9, 27, 81 or 243".format(args.input,len(tensor_array)))
 
 if args.verbose:
-    print "gamma?: {0}; beta?: {1}".format(gamma,beta)
+    print "alpha: {0}; beta: {1}; gamma: {2}; delta: {3}".format(alpha, beta, gamma, delta)
     
 #print tensor_array
 
@@ -72,7 +74,11 @@ x_elem = [[0],[4,8,10,12,20,24]]
 y_elem = [[13],[1,3,9,17,23,25]]
 z_elem = [[26],[2,6,14,16,18,22]]
 
-if beta:
+if alpha:
+    high_elem = []
+    all_elem = [0, 4, 8]
+    div = 3.0
+elif beta:
     if args.beta == "iso":
         high_elem = x_elem[0] + y_elem[0] + z_elem[0]
         all_elem = x_elem[1] + y_elem[1] + z_elem[1]
@@ -123,7 +129,9 @@ print_value = print_value/div
 
 
 if args.verbose:
-    if beta:
+    if alpha:
+        a = "alpha"
+    elif beta:
         a = "beta"
     elif gamma:
         a = "gamma"
