@@ -19,6 +19,9 @@ tar --extract --file=file.tar.gz filename
 sed '/patternstring/ a\\
 new line string' file1
 
+--- replace only the first occurence in a file ---
+sed '0,/replace/{s/replace/new_string/}' file
+
 --- number of lines in a directory ---
 ls -1 targetdir | wc -l
 
