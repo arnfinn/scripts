@@ -9,6 +9,7 @@ import math
 from argparse import ArgumentParser
 import sys
 import subprocess
+import os.path
 
 def five_point_stencil(f1, f2, f3, f4, h):
     # from wikipedia
@@ -74,16 +75,21 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
                 tmp_file = open(dalname,"w")
                 tmp_file.write(newdal)
                 tmp_file.close()
-    print all_files
     return all_files
 
 def run_dalton(exc="dalton",dal="input",mol="input",pot="", cores="1"):
-    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-N", cores, dal, mol, pot]
-    try:
-        subprocess.call(dalinp)
-    except:
-        sys.stderr.write('Something wrong running %s\n' % exc)
-        sys.exit(-1)
+    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
+    if pot == "":
+        rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + ".rsp_tensor_human"
+    else:
+        rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + "_" + pot.split(".")[0] + ".rsp_tensor_human"
+
+    if not os.path.isfile(rsp_tensor):
+        try:
+            subprocess.call(dalinp)
+        except:
+            sys.stderr.write('Something wrong running %s\n' % exc)
+            sys.exit(-1)
 
 def read_file(file):
     tmpfile = open(file,"r")
@@ -107,7 +113,7 @@ parser.add_argument("-m", "--mol",dest="molfile", required=True,
                     help="The mol input file")
 parser.add_argument("-p", "--pot",dest="potfile", default="",
                     help="pot input file")
-parser.add_argument("-x", "--executable", dest="execute", required=True,
+parser.add_argument("-x", "--executable", dest="execute",
                     help="The (dalton) executable")
 parser.add_argument("-N", "--nodes", dest="nodes", default="1",
                     help="number of nodes/cores to run dalton [default: %(default)s]")
@@ -115,12 +121,16 @@ parser.add_argument("--two", action="store_true", dest="two", default=False,
                     help="Finite field with two intead of four points.")
 parser.add_argument("--dryrun", action="store_true", dest="dryrun", default=False, 
                     help="Do not run dalton (if files already exists)")
+parser.add_argument("--force", action="store_true", dest="force", default=False, 
+                    help="Run dalton even if tensor files already exists")
 parser.add_argument("--trash", action="store_true", dest="trash", default=False, 
                     help="Remove all the files produced by the script (and dalton)")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
 args = parser.parse_args()
 
+if not args.execute and not args.dryrun:
+    exit("Dalton executable (-x DALTON) not specified!")
 
 if args.verbose:
     sys.stdout.write("""
@@ -180,7 +190,10 @@ if args.verbose:
     print "The higher order tensor\n"
     print out_tensor
 
-outfile ="{0}_{1}.finite_field_tensor".format(args.dalfile.split(".")[0], args.molfile.split(".")[0])
+if args.potfile:
+    outfile ="{0}_{1}_{2}.finite_field_tensor".format(args.dalfile.split(".")[0], args.molfile.split(".")[0], args.potfile.split(".")[0])
+else:
+    outfile ="{0}_{1}.finite_field_tensor".format(args.dalfile.split(".")[0], args.molfile.split(".")[0])
 
 write_file(outfile,out_tensor)
 
