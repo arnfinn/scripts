@@ -74,6 +74,7 @@ x_elem = [[0],[4,8,10,12,20,24]]
 y_elem = [[13],[1,3,9,17,23,25]]
 z_elem = [[26],[2,6,14,16,18,22]]
 
+
 if alpha:
     high_elem = []
     all_elem = [0, 4, 8]
@@ -97,7 +98,9 @@ elif beta:
         div = 5.0
     else:
         quit("beta input not correct! Possible values iso, x y z NOT {0}".format(args.coord))
-else:
+    high_count = 3.0
+
+elif gamma:
     high_elem = [x_elem[0][0],27+y_elem[0][0],27+27+z_elem[0][0]]
     x = np.array(x_elem[1])
     y = 27 + np.array(y_elem[1])
@@ -107,23 +110,42 @@ else:
     z = z.tolist()
     all_elem = x + y + z
     div = 15.0
+    high_count = 3.0
 
-if delta:
-    tmp_high = []
-    tmp_all  = []
-    for i in [1,2]:
-        tmp_array = 81*i+np.array(high_elem)
-        tmp_high += tmp_array.tolist()
-        tmp_array = 81*i+np.array(all_elem)
-        tmp_all  += tmp_array.tolist()
+elif delta:
+    # sum_i sum_j sum_k (ijjkk + ijkjk + ijkkj +
+    #                    jijkk + jikjk + jikkj +
+    #                    jjikk + jkijk + jkikj +
+    #                    jjkik + jkjik + jkkij +
+    #                    jjkki + jkjki + jkkji)
 
-    high_elem += tmp_high
-    all_elem += tmp_all
+    a = np.array([0,1,2,3,4,6,8])
+    b = np.array([0,1,3,4,5,7,8])
+    c = np.array([0,2,4,5,6,7,8])
+    d = np.array([1,2,3,5,6,7])
+    abc = [a,b,c]
+    bad = [b,a,d]
+    cda = [c,d,a]
+    dcb = [d,c,b]
+
+    mylist = abc + bad + cda + bad + abc + dcb + cda + dcb + abc
+
+    num = 0
+    all_elem = []
+    for i in mylist:
+        tmp = i + 9*num 
+        all_elem += tmp.tolist()
+        num += 1
+
+    # xxxxx, yyyyy and zzzzz has to be "counted" nine times
+    high_elem = [0,121,242]
+    high_count = 8.0
+    div = 225.0
 
 for i in all_elem:
     print_value += tensor_array[i]
 for i in high_elem:
-    print_value += 3.0*tensor_array[i]
+    print_value += high_count*tensor_array[i]
 
 print_value = print_value/div
 
