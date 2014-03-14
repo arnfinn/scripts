@@ -10,9 +10,10 @@ parser.add_option("-i", "--input",dest="filename", help="the file to read")
 parser.add_option("-b", "--basis",dest="basisset", default='6-31+G*', help="the basisset")
 (options, args) = parser.parse_args()
 basis = options.basisset
-file = open(options.filename,'r')
+pdbfile = open(options.filename,'r')
+lines=pdbfile.readlines()
+pdbfile.close()
 
-lines=file.readlines()
 k=0
 body=''
 charge=0
@@ -57,26 +58,24 @@ for j in range(fact):
 
 a=len(options.filename)
 mol=open(options.filename[0:a-4]+'.mol','w')
-mol.write('ATOMBASIS\n\
+mol.write('BASIS\n\
+'+basis+'\n\
 Structure from file '+options.filename+'\n\
 ----------------------\n\
 AtomTypes='+str(atmtps)+' NoSymmetry Angstrom')
 if charge==0:
     mol.write('\n')
 else:
-    print "The charge of the molecule(s) is (are) found to be "+str(charge)
-    print "in file " + options.filename
+    print "WARNING!"
+    print "The total charge of the molecule(s) is (are)"
+    print "found to be "+str(charge) + " in file " + options.filename
+    print "Please be sure this is correct."
     mol.write(' Charge='+str(charge)+'\n')
 
 for j in range(fact):
     if all[j][2]>0:
-        mol.write('        Charge='+all[j][3]+'   Atoms='+str(all[j][2])+'   \
-Basis='+basis+'\n')
+        mol.write('        Charge='+all[j][3]+'   Atoms='+str(all[j][2])+'\n')
         mol.write(all[j][1])
 
 mol.close()
 
-
-#out.write(str(k)+'\n\n'+body)
-#file.close()
-#out.close()

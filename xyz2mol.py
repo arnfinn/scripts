@@ -83,9 +83,10 @@ if int(test[1])==5 and not charge in ["+","-","0"]:
             print "The answer "+str(charge)+" not valid!"
             charge = raw_input("Please press 0 for neutral (open shell), + for positively  or - for negatively charged molecule: ")
 
-mol.write('ATOMBASIS\n\
+mol.write('BASIS\n\
+'+basis+'\n\
 Structure from file '+filename+'\n\
-----------------------\n\
+using my xyz2mol.py 0.1.1 \n\
 AtomTypes='+str(atmtps)+' NoSymmetry Angstrom')
 if charge=="+":
     mol.write(' Charge=1\n')
@@ -96,8 +97,7 @@ else:
 
 for j in range(fact):
     if all[j][2]>0:
-        mol.write('        Charge='+all[j][3]+'   Atoms='+str(all[j][2])+'   \
-Basis='+basis+'\n')
+        mol.write('        Charge='+all[j][3]+'   Atoms='+str(all[j][2])+'\n')
         mol.write(all[j][1])
 
 mol.close()

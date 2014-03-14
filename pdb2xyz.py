@@ -3,14 +3,18 @@
 # Make a xyz file out of a pdb file
 
 import sys
-from optparse import OptionParser
+from argparse import ArgumentParser
 
-parser = OptionParser()
-parser.add_option("-i", "--input",dest="filename", help="the file to read")
-(options, args) = parser.parse_args()
-file = open(options.filename,'r')
-a=len(options.filename)
-out=open(options.filename[0:a-4]+'.xyz','w')
+parser = ArgumentParser()
+parser.add_argument("-i", "--input",dest="filename", help="the file to read")
+parser.add_argument("--num", action="store_true", dest="num", default=False, 
+                    help="Add numbers to atoms in the xyz file")
+
+args = parser.parse_args()
+
+file = open(args.filename,'r')
+a=len(args.filename)
+out=open(args.filename[0:a-4]+'.xyz','w')
 
 lines=file.readlines()
 k=0
@@ -19,7 +23,11 @@ charge=0
 for i in lines:
     if i[0:6]=='HETATM' or i[0:4]=='ATOM':
         k=k+1
-        line=i[77]+str(k)+'   '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
+        if args.num:
+            line=i[77]+str(k)+'   '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
+        else:
+            line=i[77]+'   '+i[30:38]+'   '+i[38:46]+'   '+i[46:54]+'\n'
+
         body=body+line
         try:
             if i[79]=="+":
