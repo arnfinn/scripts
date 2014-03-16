@@ -191,6 +191,7 @@ if path.isfile('{0}'.format(potfile)) and not args.force:
 totatom = 0
 mulpollist=[]
 polarilist=[]
+exclist=[]
 textlist = []
 
 for i in MpProp:
@@ -205,6 +206,7 @@ for i in MpProp:
 
     mulpollist.append(k.get_mulpol())
     polarilist.append(k.get_pol())
+    exclist.append(k.num_atoms())
     totatom += k.num_atoms()
     textlist.append(k.pot_lines())
 
@@ -268,16 +270,28 @@ else:
         mypot += "ORDER {0}\n{1}\n".format(i, totatom) + mult[i]
     mypot += "@POLARIZABILITIES\nORDER 1 1\n{0}\n".format(totatom)+pol
 
-    len_list = 3
+    len_list = max(exclist)
     mypot += "EXCLISTS\n{0} {1}\n".format(totatom, len_list)
-    atm1,atm2,atm3 = 1,2,3
-    for i in range(totatom/len_list):
-        mypot += "{0} {1} {2}\n{1} {0} {2}\n{2} {0} {1}\n".format(atm1,atm2,atm3)
-        atm1 += 3
-        atm2 += 3
-        atm3 += 3
-#    print mypot
-    
+    k = 0
+    for i in exclist:
+        r = []
+        for j in range(i):
+            k += 1
+            r.append(k)
+        for j in r:
+            new_list = r[:]
+            new_list.remove(j)
+            a = 5 - len(str(j))
+            exc_string = a*" " + str(j)
+            for l in new_list:
+                a = 6 - len(str(l))
+                exc_string += a*" " + str(l)
+            num_zeros = len_list - len(r)
+            if num_zeros > 0:
+                for n in range(num_zeros):
+                    exc_string += "     0"
+            mypot += exc_string + "\n"
+
 outf=open(potfile, "w")
 outf.write(mypot)
 outf.close()
