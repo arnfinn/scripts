@@ -51,7 +51,7 @@ def write_file(file,content):
 parser = ArgumentParser(description="Compare numbers in two tensor files")
 
 parser.add_argument("-i", "--input",dest="input", nargs=2, required=True,
-                    help="The field strength [default: %(default)s]")
+                    help="The two input files to compare")
 parser.add_argument("-p", action="store_true", dest="percent", default=False, 
                     help="Average percentage difference")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
