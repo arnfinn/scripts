@@ -44,7 +44,8 @@ for i in sys.argv[1:]:
                     opa = True
 #                    print words[4] + ' ' + get_opa_ex(file,line)
                     opa=get_opa_ex(file,line).split('(')
-                    printline=words[4] + ' & ' + opa[0] + ' & ' + opa[1][0:5]+'& & '
+                    spc = 3-len(words[4])
+                    printline=words[4] + spc*' ' + '& ' + opa[0] + ' & ' + opa[1][0:5]+'& & '
                     
                     for i in range(8):
                         file.readline()
@@ -55,7 +56,7 @@ for i in sys.argv[1:]:
                             int(words[0])
                         except:
                             a=len(printline)
-                            print printline[0:a-1]
+                            print printline[0:a-1]+"    \\\\"
                             break
                         low=int(words[1].split('(')[0])
                         high=int(words[2].split('(')[0])
