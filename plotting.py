@@ -8,6 +8,12 @@ import argparse
 import numpy as np
 plt.rcParams.update({'font.size': 18})
 from math import sqrt
+try:
+    from mpltools import style
+    from mpltools import layout
+except:
+    pass
+
 #rcParams.update({'figure.autolayout': True})
 
 def get_time(input):
@@ -36,7 +42,7 @@ parser.add_argument("-y",dest="y",#default="exc",
                     help="What to plot on the y-coordinate")
 parser.add_argument("-o",dest="output",
                     help="Output file (pdf)")
-parser.add_argument("--loc",dest="loc",
+parser.add_argument("--loc",dest="loc",default="best",
                     help="Location of legends")
 parser.add_argument("-s","--subplot",default=False, action='store_true',dest="subplot",
                     help="Make subplots")
@@ -69,9 +75,9 @@ if args.bw:
     lstyle = ['-','--','-','--','-','--']
     linestyle = ['k-','k.','k-.','k^','k.','k<']
 else:
-    linestyle = ['b-','g-','r-','y-','k-']
-    lcolor = ['b','g','r','y','k']
-    lstyle = ['-','-','-','-','-']
+    linestyle = ['b-','g-','r-','y-','k-','b-','g-','r-','y-','k-']
+    lcolor = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33','burlywood']
+    lstyle = ['-','-','-','-','-','-','-','-','-','-','-','-','-']
 
 mark = ['o','^','<','v','>','o']
 
@@ -83,17 +89,17 @@ for i in inp:
     lines = file.readlines()
     file.close()
     for k in range(5):
-        words = lines[k].split()
         try:
+            words = lines[k].split()
             first = words[0]
         except:
             first = ""
         if first =="x:" and not x:
             x=words[1]
-            xlab = lines[k][3:]
+            xlab = lines[k][3:].rstrip()
         elif first =="y:" and not y:
             y=words[1]
-            ylab = lines[k][3:]
+            ylab = lines[k][3:].rstrip()
     if x=="time" or y=="time":
         time_plot = True
 
@@ -159,8 +165,8 @@ for i in inp:
     lines = file.readlines()
     file.close()
     for k in range(10):
-        words = lines[k].split()
         try:
+            words = lines[k].split()
             first = words[0]
         except:
             first = ""
