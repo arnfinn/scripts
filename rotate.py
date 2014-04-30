@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/env python 
 # Arnfinn Hykkerud Steindal, Tromso March 2011 
 # Move and rotate a molecule so the first atom is in origin, the second
 # atom is along the z-axis and the third atom is in the yz-plane.
@@ -6,7 +6,7 @@
 
 import sys
 import math
-from optparse import OptionParser
+import argparse
 
 def rotation(vec,ang,round):
     # Rotate a vector 'vec' around the vector 'round' by 'ang'
@@ -96,13 +96,17 @@ def rotarg(a,b,c):
 
 
 
-parser = OptionParser()
-parser.add_option("-i", "--input",dest="filename")
-parser.add_option("-r", "--rotatm",
-                  type="int", dest="a", nargs=3)
-(options, args) = parser.parse_args()
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawTextHelpFormatter,
+    description="\
+Script for rotating and moving molecules in an xyz file")
 
-file = options.filename
+parser.add_argument("-i", "--input",dest="filename")
+parser.add_argument("-r", "--rotatm",
+                  dest="a", nargs=3, default=[1,2,3])
+args = parser.parse_args()
+
+file = args.filename
 b=len(file)
 c=2 #File starting with two empty lines is default
 
@@ -117,7 +121,7 @@ wrfile = open(file[0:b-4]+'_rot'+file[b-4:b],'w')
 lines=infile.readlines()
 
 # The three reference atoms. 
-atoms= options.a
+atoms= args.a
 if atoms == None:
     atoms=[1,2,3]
 atmlist=['O','C','H','N','S']
