@@ -54,9 +54,9 @@ for arg in sys.argv[1:]:
                 b = 20 - len(words[2])
                 c = 20 - len(words[3])
             cntr = cntr + 1
-            # + str(cntr)
-            tall = tall + 1
-            inpxyz = inpxyz + words[0]+str(tall)+a*' '+words[1]+b*' ' + '\
+#            tall = tall + 1
+#            inpxyz = inpxyz + words[0]+str(tall)+a*' '+words[1]+b*' ' + '\
+            inpxyz = inpxyz + words[0]+a*' '+words[1]+b*' ' + '\
 '+ words[2] + c*' ' +  words[3] + '\n'
     xyz.write(str(cntr) + '\n\
 ' + '\n' + inpxyz)
