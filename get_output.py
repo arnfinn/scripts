@@ -121,12 +121,9 @@ def get_opa(lines):
             if k == 3:
                 osc.append(osc_tmp)
     if len(osc) != len(exc):
-        print osc, exc
         exit("Something wrong in get_opa!")
     for i in range(len(osc)):
-        if osc[i] < 0.0001:
-            osc[i] = 0.0000
-        opa_string += "{0:.3f} ({1:.3f}) ".format(float(exc[i]),osc[i])
+        opa_string += "{0:.4f} ({1:.3f}) ".format(float(exc[i]),osc[i])
     return opa_string
 
 def get_tpa(lines):
