@@ -21,6 +21,12 @@ def write_file(file,content):
     tmpfile.write(content)
     tmpfile.close()
 
+def levi_civita(a,b,c):
+    xyz_dict = {"x":1,"y":2,"z":3}
+    d = xyz_dict[a]
+    e = xyz_dict[b]
+    f = xyz_dict[c]
+    return (d-e)*(e-f)*(f-d)/2
 
 parser = ArgumentParser(description="My potential file manipulation script")
 
@@ -28,6 +34,8 @@ parser.add_argument("-i", "--input",dest="input", required=True,
                     help="Input file")
 parser.add_argument("--beta",dest="beta", default="iso",
                     help="Which beta (iso, x, y or z) [default: %(default)s]")
+parser.add_argument("--delta",dest="delta", default="iso",
+                    help="Which delta (iso, x, y or z) [default: %(default)s]")
 parser.add_argument("-v", action="store_true", dest="verbose", default=False, 
                     help="Print more")
 args = parser.parse_args()
@@ -35,8 +43,10 @@ args = parser.parse_args()
 
 if args.verbose:
     sys.stdout.write("""
-    This is a script\n
-    """
+    This is a script for converting tensors to isotropic values
+    Arnfinn Hykkerud Steindal, 2014
+    Copyright: "I do not care"\n
+"""
                  )
 
 tensor=read_file(args.input)
@@ -65,7 +75,7 @@ else:
 Number of elements in the tensor ({1}) not equal 9, 27, 81 or 243".format(args.input,len(tensor_array)))
 
 if args.verbose:
-    print "alpha: {0}; beta: {1}; gamma: {2}; delta: {3}".format(alpha, beta, gamma, delta)
+    print " alpha: {0}\n beta:  {1}\n gamma: {2}\n delta: {3}\n\n Total number of tensor elements: {4}\n".format(alpha, beta, gamma, delta, len(tensor_array))
     
 #print tensor_array
 
@@ -113,42 +123,52 @@ elif gamma:
     high_count = 3.0
 
 elif delta:
-    # sum_i sum_j sum_k (ijjkk + ijkjk + ijkkj +
-    #                    jijkk + jikjk + jikkj +
-    #                    jjikk + jkijk + jkikj +
-    #                    jjkik + jkjik + jkkij +
-    #                    jjkki + jkjki + jkkji)
+    ele = ["x","y","z"]
+    tensor_ele = []
+    for i in ele:
+        for j in ele:
+            for k in ele:
+                for l in ele:
+                    for m in ele:
+                        tensor_ele.append(i+j+k+l+m) 
 
-    a = np.array([0,1,2,3,4,6,8])
-    b = np.array([0,1,3,4,5,7,8])
-    c = np.array([0,2,4,5,6,7,8])
-    d = np.array([1,2,3,5,6,7])
-    abc = [a,b,c]
-    bad = [b,a,d]
-    cda = [c,d,a]
-    dcb = [d,c,b]
+    if len(tensor_ele) != len(tensor_array):
+        quit("Something wrong! length of tensors not equal")
 
-    mylist = abc + bad + cda + bad + abc + dcb + cda + dcb + abc
+    if args.delta == "iso":
+        ele_one = ele
+    else:
+        ele_one = args.delta
+        if ele_one not in ele:
+            quit("delta input not correct! Possible values iso, x y z NOT {0}".format(args.delta))
 
-    num = 0
-    all_elem = []
-    for i in mylist:
-        tmp = i + 9*num 
-        all_elem += tmp.tolist()
-        num += 1
+    for i in range(len(tensor_ele)):
+        ijklm = list(tensor_ele[i])
+        a = ijklm[0]
+        if a not in ele_one:
+            continue
+        b = ijklm[1]
+        c = ijklm[2]
+        d = ijklm[3]
+        e = ijklm[4]
+        if d == e:
+            if levi_civita(a,b,c) != 0:
+                print_value += levi_civita(a,b,c)*tensor_array[i]
+        if c == e:
+            if levi_civita(a,b,d) != 0:
+                print_value += levi_civita(a,b,d)*tensor_array[i]
+        if c == d:
+            if levi_civita(a,b,e) != 0:
+                print_value += levi_civita(a,b,e)*tensor_array[i]
+    div = 30.0
 
-    # xxxxx, yyyyy and zzzzz has to be "counted" nine times
-    high_elem = [0,121,242]
-    high_count = 8.0
-    div = 225.0
-
-for i in all_elem:
-    print_value += tensor_array[i]
-for i in high_elem:
-    print_value += high_count*tensor_array[i]
+if not delta:
+    for i in all_elem:
+        print_value += tensor_array[i]
+    for i in high_elem:
+        print_value += high_count*tensor_array[i]
 
 print_value = print_value/div
-
 
 if args.verbose:
     if alpha:
@@ -159,8 +179,8 @@ if args.verbose:
         a = "gamma"
     elif delta:
         a = "delta"
-    print "{0} for input tensor {1} is {2}".format(a,args.input,print_value)
+    print " {0} for input tensor {1} is\n {2:.8f}".format(a,args.input,print_value)
 
 else:
-    print print_value
+    print "{0:.8f}".format(print_value)
          
