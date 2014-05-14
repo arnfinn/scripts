@@ -77,19 +77,84 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
                 tmp_file.close()
     return all_files
 
-def run_dalton(exc="dalton",dal="input",mol="input",pot="", cores="1"):
-    dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
+def run_dalton(exc="dalton",dal="input",mol="input",pot="", cores="1", dalton=False, force=False):
+    if dalton:
+        dalinp = [exc,"-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
+    else:
+        dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
     if pot == "":
         rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + ".rsp_tensor_human"
+        dalout = dal.split(".")[0] + "_" + mol.split(".")[0] + ".out"
     else:
         rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + "_" + pot.split(".")[0] + ".rsp_tensor_human"
+        dalout = dal.split(".")[0] + "_" + mol.split(".")[0] + "_" + pot.split(".")[0] + ".out"
 
-    if not os.path.isfile(rsp_tensor):
+    if not os.path.isfile(rsp_tensor) or force:
         try:
-            subprocess.call(dalinp)
+            if not dalton:
+                subprocess.call(dalinp)
+            elif not os.path.isfile(dalout) or force:
+                subprocess.call(dalinp)
         except:
             sys.stderr.write('Something wrong running %s\n' % exc)
             sys.exit(-1)
+
+def dal_to_tensor(tensor_names, force=False):
+    for i in tensor_names:
+        dalout = i.split(".")[0] + ".out"
+        output = read_file(dalout)
+        A = ["X;X,X"]
+        B = ["Y;X,X"]
+        C = ["Z;X,X"]
+        D = ["Y;Y,X"]
+        E = ["Z;Y,X"]
+        F = ["Z;Z,X"]
+        G = ["Y;Y,Y"]
+        H = ["Z;Y,Y"]
+        I = ["Z;Z,Y"]
+        J = ["Z;Z,Z"]
+        all_ele = [A,B,C,D,E,F,G,H,I,J]
+        for j in output:
+            try:
+                if "B-freq" in j:
+                    for k in all_ele:
+                        if k[0] in j:
+                            words = j.split()
+                            k.append(float(words[9]))
+            except:
+                pass
+
+        beta_tensor = "\n"
+        for j in [A,B,C]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [B,D,E]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [C,E,F]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n\n"
+        for j in [B,D,E]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [D,G,H]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [E,H,I]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n\n"
+        for j in [C,E,F]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [E,H,I]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n"
+        for j in [F,I,J]:
+            beta_tensor += "        {0:12.8f}".format(j[1])
+        beta_tensor += "\n\n"
+
+        if not os.path.isfile(i) or force:
+            write_file(i,beta_tensor)
 
 def read_file(file):
     tmpfile = open(file,"r")
@@ -117,6 +182,8 @@ parser.add_argument("-x", "--executable", dest="execute",
                     help="The (dalton) executable")
 parser.add_argument("-N", "--nodes", dest="nodes", default="1",
                     help="number of nodes/cores to run dalton [default: %(default)s]")
+parser.add_argument("--dalton", action="store_true", dest="dalton", default=False, 
+                    help="Finite field with regular dalton instead of openRSP (only for beta to gamma!).")
 parser.add_argument("--two", action="store_true", dest="two", default=False, 
                     help="Finite field with two intead of four points.")
 parser.add_argument("--dryrun", action="store_true", dest="dryrun", default=False, 
@@ -142,7 +209,7 @@ new_dal = make_new_dal(args.dalfile, args.field, two=args.two, dryrun=args.dryru
 
 for i in new_dal:
     if not args.dryrun:
-        run_dalton(exc=args.execute,dal=i,mol=args.molfile,pot=args.potfile,cores=args.nodes)
+        run_dalton(exc=args.execute,dal=i,mol=args.molfile,pot=args.potfile,cores=args.nodes,dalton=args.dalton,force=args.force)
 
 # The names of the tensor files produced by dalton
 tensor_out = []
@@ -151,6 +218,9 @@ for i in new_dal:
         tensor_out.append("{0}_{1}_{2}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0], args.potfile.split(".")[0]))
     else:
         tensor_out.append("{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0]))
+
+if args.dalton:
+    dal_to_tensor(tensor_out, force=args.force)
 
 # Read tensor data
 tensor_data = []
