@@ -86,8 +86,10 @@ for line in lines:
 #        print "two "+ettall
     else:
         ettall = words[row]
-#        print "one " +ettall
-    if "." in ettall:
+    if float(ettall) < 0:
+        # dirty fix! negative numbers became positive in the re.sub stuff
+        ettall = float(ettall)
+    elif "." in ettall:
         ettall = float(re.sub("\D","",ettall.split(".")[0])+"."+re.sub("\D","",ettall.split(".")[1]))
 #        ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
     else:
@@ -96,6 +98,7 @@ for line in lines:
     if options.printing:
         print ettall
     tab.append(ettall)
+
 
 if options.ev2nm:
     tab = ev2nm(tab)

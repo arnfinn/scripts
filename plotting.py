@@ -50,7 +50,7 @@ parser.add_argument("--xlim",dest="xlim",nargs=2, type=float,
                     help="Range on the x-axis")
 parser.add_argument("--ylim",dest="ylim",nargs=2, type=float,
                     help="Range on the y-axis")
-parser.add_argument("--lw",dest="lw", type=float,
+parser.add_argument("--lw",dest="lw", type=float, default=2.0,
                     help="Linewidth")
 parser.add_argument("--bw",default=False, action='store_true',dest="bw",
                     help="Make black and white figure")
@@ -72,14 +72,14 @@ if args.loc:
 
 if args.bw:
     lcolor = ['k','0.75','0.5','k','0.75','0.5']
-    lstyle = ['-','--','-','--','-','--']
+    lstyle = ['-','--','-','--','-','--','-','--','-','--','-','--']
     linestyle = ['k-','k.','k-.','k^','k.','k<']
 else:
     linestyle = ['b-','g-','r-','y-','k-','b-','g-','r-','y-','k-']
     lcolor = ['#348ABD', '#7A68A6', '#A60628', '#467821', '#CF4457', '#188487', '#E24A33','burlywood']
     lstyle = ['-','-','-','-','-','-','-','-','-','-','-','-','-']
 
-mark = ['o','^','<','v','>','o']
+mark = ['o','^','<','v','>','o','^','<','v','>']
 
 time_plot = False
 allx=[]
@@ -186,13 +186,6 @@ for i in inp:
             def_color = words[1]
     if md:
         stdev = []
-# The linewidth
-    if args.lw:
-        mylw = args.lw
-    elif md:
-        mylw = 2
-    else:
-        mylw = 2
 
 # Read data
     for j in lines:
@@ -229,9 +222,9 @@ for i in inp:
         if numplot == totplot-1:
             ax.set_xlabel(xlab)
         if md:
-            ax.errorbar(xaxes,yaxes,yerr=stdev,color=def_color,ls=lstyle[0],label=lab, lw=mylw, marker='o', elinewidth=mylw, capsize=2.5*mylw, markeredgewidth=mylw)
+            ax.errorbar(xaxes,yaxes,yerr=stdev,color=def_color,ls=lstyle[0],label=lab, lw=args.lw, marker='o', elinewidth=args.lw, capsize=2.5*args.lw, markeredgewidth=args.lw)
         else:
-            ax.plot(xaxes,yaxes,marker="o",lw=mylw,label=lab,color=def_color,ls=lstyle[0], markeredgewidth=mylw)
+            ax.plot(xaxes,yaxes,marker="o",lw=args.lw,label=lab,color=def_color,ls=lstyle[0], markeredgewidth=args.lw)
             # ax.legend(loc=labloc,markerscale=0.1).get_frame().set_alpha(0)
         if ylim:
             ymin = ylim[0]
@@ -249,11 +242,11 @@ for i in inp:
         ax.annotate(lab, xy=(0.24, 0.8), xycoords='axes fraction', fontsize=20)
         numplot += 1
     elif md:
-        plt.errorbar(xaxes,yaxes,yerr=stdev,color=def_color,ls=lstyle[num],label=lab, lw=mylw, marker=mark[num], elinewidth=mylw, capsize=2.5*mylw, markeredgewidth=mylw)
+        plt.errorbar(xaxes,yaxes,yerr=stdev,color=def_color,ls=lstyle[num],label=lab, lw=args.lw, marker=mark[num], elinewidth=args.lw, capsize=2.5*args.lw, markeredgewidth=args.lw)
     elif points:
         plt.scatter(xaxes,yaxes,label=lab)
     else:
-        plt.plot(xaxes,yaxes,marker=mark[num],color=def_color,ls=lstyle[num],lw=mylw,label=lab, markeredgewidth=mylw)
+        plt.plot(xaxes,yaxes,marker=mark[num],color=def_color,ls=lstyle[num],lw=args.lw,label=lab, markeredgewidth=args.lw)
     num += 1
     if xlim:
         plt.xlim(xlim)
@@ -291,13 +284,19 @@ elif  figname[-4:] == ".png":
 if args.subplot:
     f.subplots_adjust(hspace=0)
 else:
+    box = ax.get_position()
     if labloc == "outside":
-        box = ax.get_position()
-        ax.set_position([box.x0*1.1, box.y0, box.width, box.height*0.8])
+        ax.set_position([box.x0*1.2, box.y0, box.width, box.height*0.80])
+        if len(args.input) < 5:
+            ncol = 2
+        else:
+            ncol = 3
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35),
-                   ncol=3,fancybox=True, shadow=True)
-    elif not args.noleg:
-        plt.legend(loc=labloc, fancybox=True, shadow=True)
+                   ncol=ncol,fancybox=True, shadow=True)
+    else:
+        ax.set_position([box.x0*1.2, box.y0, box.width, box.height])
+        if not args.noleg:
+            plt.legend(loc=labloc, fancybox=True, shadow=True)
     plt.grid(True)
 
 print "making "+figname
