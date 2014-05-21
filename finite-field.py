@@ -78,16 +78,16 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
     return all_files
 
 def run_dalton(exc="dalton",dal="input",mol="input",pot="", cores="1", dalton=False, force=False):
-    if dalton:
-        dalinp = [exc,"-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
-    else:
-        dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-d", "-N", cores, dal, mol, pot]
     if pot == "":
         rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + ".rsp_tensor_human"
         dalout = dal.split(".")[0] + "_" + mol.split(".")[0] + ".out"
     else:
         rsp_tensor = dal.split(".")[0] + "_" + mol.split(".")[0] + "_" + pot.split(".")[0] + ".rsp_tensor_human"
         dalout = dal.split(".")[0] + "_" + mol.split(".")[0] + "_" + pot.split(".")[0] + ".out"
+    if dalton:
+        dalinp = [exc,"-nobackup","-noarch", "-d", "-N", cores, "-o", dalout, dal, mol, pot]
+    else:
+        dalinp = [exc,"-get", "rsp_tensor_human","-nobackup","-noarch", "-d", "-N", cores, "-o", dalout, dal, mol, pot]
 
     if not os.path.isfile(rsp_tensor) or force:
         try:
