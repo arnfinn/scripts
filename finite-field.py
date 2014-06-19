@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 import sys
 import subprocess
 import os.path
+import os
 
 def five_point_stencil(f1, f2, f3, f4, h):
     # from wikipedia
@@ -60,6 +61,8 @@ def make_new_dal(old_dal, h, two=False, dryrun=False):
             num += 1
             dalname = "{0}_{1}_{2}.dal".format(old_dal.split(".")[0],i,num)
             all_files.append(dalname)
+            if os.path.isfile(dalname):
+                continue
             if not dryrun:
                 newdal = ""
                 for k in dallines:
@@ -236,13 +239,20 @@ else:
 # Use tensor_data to make higher order tensor
 for i in range(3): # X Y and Z
     for j in range(len(tensor_data[0])-1): # read all lines, except last, in files
-        line = ""
+        if len(tensor_data[0]) == 2:
+            line = "\n"
+        else:
+            line = ""
         for k in range(3): # three numbers in a row
             t = []
             for l in range(points):
                 filenum = points*i + l
                 try:
-                    t.append(float(tensor_data[filenum][j].split()[k]))
+                    if len(tensor_data[0]) == 2:
+                        # dirty fix for "dipole to alpha"
+                        t.append(float(tensor_data[filenum][1].split()[k]))
+                    else:
+                        t.append(float(tensor_data[filenum][j].split()[k]))
                 except:
                     break
             if len(t)==points:
@@ -254,6 +264,8 @@ for i in range(3): # X Y and Z
                 myspace = 20 - len(mynum)
                 line += myspace*" "+mynum
         out_tensor += "{0}\n".format(line)
+if len(tensor_data[0]) == 2:
+    out_tensor += "\n"
 
 
 if args.verbose:
@@ -269,10 +281,13 @@ write_file(outfile,out_tensor)
 
 if args.trash:
     for i in new_dal:
-        out = "{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0])
-        tensor = "{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0])
-        subprocess.call("rm",out)
-        subprocess.call("rm",tensor)
-        subprocess.call("rm",i)
+        out = "{0}_{1}.out".format(i.split(".")[0], args.molfile.split(".")[0])
+#        tensor = "{0}_{1}.rsp_tensor_human".format(i.split(".")[0], args.molfile.split(".")[0])
+        try:
+            # if it has already been removed in a previous run
+            os.remove(out)
+        except:
+            pass
+        os.remove(i)
 
 
