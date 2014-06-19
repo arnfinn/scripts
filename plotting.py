@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 
 #from pylab import matplotlib
@@ -36,10 +36,12 @@ Simple plot script.")
 
 parser.add_argument("-i",dest="input",nargs='+',required=True, 
                     help="Input files")
-parser.add_argument("-x",dest="x",#default="rad", 
+parser.add_argument("-x",dest="x",
                     help="What to plot on the x-coordinate")
-parser.add_argument("-y",dest="y",#default="exc",
+parser.add_argument("-y",dest="y",
                     help="What to plot on the y-coordinate")
+parser.add_argument("-t","--title",dest="title",
+                    help="Title")
 parser.add_argument("-o",dest="output",
                     help="Output file (pdf)")
 parser.add_argument("--loc",dest="loc",default="best",
@@ -125,8 +127,8 @@ elif x=="sites":
     xlab = 'Number of atoms within threshold'
 elif x=="time":
     xlab = 'Wall time (min)'
-#else:
-#    xlab = x
+elif x and not xlab:
+    xlab = x
 #    quit("no good x-values specified: "+x)
 
 if y=="exc":
@@ -139,8 +141,8 @@ elif y=="sites":
     ylab = 'Number of atoms within threshold'
 elif y=="time":
     ylab = 'Wall time (min)'
-#else:
-#    ylab = y
+elif y and not ylab:
+    ylab = y
 #    quit("no good y-values specified: "+y)
 
 if args.subplot:
@@ -298,6 +300,9 @@ else:
         if not args.noleg:
             plt.legend(loc=labloc, fancybox=True, shadow=True)
     plt.grid(True)
+
+    if args.title:
+        ax.set_title(args.title)
 
 print "making "+figname
 plt.savefig(figname,format='pdf')
