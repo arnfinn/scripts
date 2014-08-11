@@ -89,11 +89,17 @@ for line in lines:
     if float(ettall) < 0:
         # dirty fix! negative numbers became positive in the re.sub stuff
         ettall = float(ettall)
-    elif "." in ettall:
-        ettall = float(re.sub("\D","",ettall.split(".")[0])+"."+re.sub("\D","",ettall.split(".")[1]))
+    else
+#        print "one " +ettall
+        try:
+            # the script did not eat 1.0e-4 kind of numbers
+            ettall = float(ettall)
+        except:
+            if "." in ettall:
+                ettall = float(re.sub("\D","",ettall.split(".")[0])+"."+re.sub("\D","",ettall.split(".")[1]))
 #        ettall = float(re.sub("\D","",words[row].split(".")[0])+"."+re.sub("\D","",words[row].split(".")[1]))
-    else:
-        ettall = float(re.sub("\D","",ettall))
+            else:
+                ettall = float(re.sub("\D","",ettall))
 #        ettall = float(re.sub("\D","",words[row]))
     if options.printing:
         print ettall
