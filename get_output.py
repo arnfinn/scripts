@@ -50,15 +50,24 @@ def get_property(lines):
                 break
             elif dalinp == ".DIPLEN":
                 prop = "alpha"
+            elif dalinp[0:4] == "NEF ":
+                prop = "nef"
+                break
         elif qrsp:
             if dalinp == ".TWO-PH":
                 prop = "2pa"
                 break
             elif dalinp == ".DIPLEN":
                 prop = "beta"
+            elif dalinp[0:4] == "NEF ":
+                prop = "nef"
+                break
         elif crsp:
             if dalinp == ".DIPLEN":
                 prop = "gamma"
+                break
+            elif dalinp[0:4] == "NEF ":
+                prop = "nef"
                 break
     if rsp:
         convergence = False
@@ -86,6 +95,8 @@ def get_output(lines,prop):
         output = get_gamma(lines)
     elif prop == "dipole":
         output = get_dipole(lines)
+    elif prop == "nef":
+        output = get_nef(lines)
     else:
         output = ""
     return output
@@ -217,6 +228,23 @@ def get_gamma(lines):
             words = i.split()
             return words[-1]
 
+def get_nef(lines):
+    for i in lines[-20:]:
+        if "@ << A; B, C, D >>  =" in i:
+            order = "cubic"
+            value = i.split()[-1]
+        elif "@ omega B, omega C, QR value :" in i:
+            order = "quadratic"
+            value = i.split()[-1]
+        elif "@ -<< NEF " in i:
+            order = "linear"
+            value = i.split()[-1]
+    try:
+        return value.replace('D','E')
+    except:
+        exit("No data in the dalton output")
+
+
 
 def get_opa_ex(file,line):
 # Input:
@@ -266,6 +294,7 @@ def au2GM(exi_ev,sigma_au):
     exi_au=exi_ev*eV2au
     sigma_GM=const*exi_au**2*sigma_au
     return sigma_GM
+
 
 for i in sys.argv[1:]:
     try:
