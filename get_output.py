@@ -26,7 +26,8 @@ def get_property(lines):
     qrsp = False
     crsp = False
     rsp = False
-    prop = ""
+    prop = False
+    my_prop = ""
     for i in lines[150:250]:
         try:
             dalinp = i[0:7]
@@ -35,8 +36,7 @@ def get_property(lines):
         if dalinp == ".RUN RE":
             rsp = True
         elif dalinp == ".RUN PR":
-            prop = "dipole"
-            break
+            prop = True
         if rsp:
             if dalinp == "*LINEAR":
                 lrsp = True
@@ -46,28 +46,32 @@ def get_property(lines):
                 crsp = True
         if lrsp:
             if dalinp == ".SINGLE":
-                prop = "1pa"
+                my_prop = "1pa"
                 break
             elif dalinp == ".DIPLEN":
-                prop = "alpha"
+                my_prop = "alpha"
             elif dalinp[0:4] == "NEF ":
-                prop = "nef"
+                my_prop = "nef"
                 break
         elif qrsp:
             if dalinp == ".TWO-PH":
-                prop = "2pa"
+                my_prop = "2pa"
                 break
             elif dalinp == ".DIPLEN":
-                prop = "beta"
+                my_prop = "beta"
             elif dalinp[0:4] == "NEF ":
-                prop = "nef"
+                my_prop = "nef"
                 break
         elif crsp:
             if dalinp == ".DIPLEN":
-                prop = "gamma"
+                my_prop = "gamma"
                 break
             elif dalinp[0:4] == "NEF ":
-                prop = "nef"
+                my_prop = "nef"
+                break
+        if prop:
+            if dalinp == ".ECD   ":
+                my_prop = "ecd"
                 break
     if rsp:
         convergence = False
@@ -80,7 +84,10 @@ def get_property(lines):
                 pass
         if not convergence:
             exit("Response calculation did not converge")
-    return prop
+    if prop and my_prop == "":
+        my_prop = "dipole"
+
+    return my_prop
 
 def get_output(lines,prop):
     if prop == "1pa":
@@ -97,9 +104,27 @@ def get_output(lines,prop):
         output = get_dipole(lines)
     elif prop == "nef":
         output = get_nef(lines)
+    elif prop == "ecd":
+        output = get_ecd(lines)
     else:
         output = ""
     return output
+
+def get_ecd(lines):
+    count = False
+    k = -999
+    out = ""
+    for i in lines:
+        if "Oscillator and Scalar Rotational Strengths" in i:
+            count = True
+            k = 0
+        if count:
+            k += 1
+            if "@ -------------" in i:
+                return out
+        if k > 9:
+            r = i.split()
+            out += "{0} ({2} {1})  ".format(r[3],r[7],r[5])
 
 def get_dipole(lines):
     count = False
