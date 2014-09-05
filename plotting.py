@@ -152,10 +152,11 @@ if args.subplot:
     totplot = len(inp)
     f, subplt = plt.subplots(totplot, 1 , sharex=True)#, subplot_kw=dict(aspect=1))
 num = 0
+title = False
 for i in inp:
     md = False
     lab = False
-    points = False
+    scatter = False
     def_color = False
     if not args.ylim:
         ylim = False
@@ -174,12 +175,14 @@ for i in inp:
             first = ""
         if first == "label:":
             lab = lines[k][7:-1]
+        if first == "title:":
+            title = lines[k][7:-1]
         elif first == "loc:" and not args.loc:
             labloc = int(words[1])
         elif first == "type:" and words[1] == "md":
             md = True
-        elif first == "type:" and words[1] == "points":
-            points = True
+        elif first == "type:" and words[1] == "scatter":
+            scatter = True
         elif first == "xlim:":
             xlim = [float(words[1]),float(words[2])]
         elif first == "ylim:":
@@ -245,17 +248,13 @@ for i in inp:
         numplot += 1
     elif md:
         plt.errorbar(xaxes,yaxes,yerr=stdev,color=def_color,ls=lstyle[num],label=lab, lw=args.lw, marker=mark[num], elinewidth=args.lw, capsize=2.5*args.lw, markeredgewidth=args.lw)
-    elif points:
-        plt.scatter(xaxes,yaxes,label=lab)
+    elif scatter:
+        plt.scatter(xaxes,yaxes,label=lab,color=def_color, lw=args.lw, marker=mark[num])
     else:
         plt.plot(xaxes,yaxes,marker=mark[num],color=def_color,ls=lstyle[num],lw=args.lw,label=lab, markeredgewidth=args.lw)
     num += 1
     if xlim:
         plt.xlim(xlim)
-    elif args.subplot:
-        plt.xlim([0,25])
-    elif  points or md:
-        plt.xlim([-0.5,31])
 
 # What is this?
 plt.subplots_adjust(left=0.15)
@@ -303,6 +302,8 @@ else:
 
     if args.title:
         ax.set_title(args.title)
+    elif title:
+        ax.set_title(title)
 
 print "making "+figname
 plt.savefig(figname,format='pdf')

@@ -3,14 +3,14 @@
 # Make a xyz file out of a pdb file
 
 import sys
-from optparse import OptionParser
+import argparse as ap
 
-parser = OptionParser()
-parser.add_option("-i", "--input",dest="filename", help="the file to read")
-parser.add_option("-b", "--basis",dest="basisset", default='6-31+G*', help="the basisset")
-(options, args) = parser.parse_args()
-basis = options.basisset
-pdbfile = open(options.filename,'r')
+parser = ap.ArgumentParser()
+parser.add_argument("-i", "--input",dest="filename", required=True, help="the file to read")
+parser.add_argument("-b", "--basis",dest="basisset", default='6-31+G*', help="the basisset [default: %(default)s].")
+args = parser.parse_args()
+basis = args.basisset
+pdbfile = open(args.filename,'r')
 lines=pdbfile.readlines()
 pdbfile.close()
 
@@ -56,11 +56,11 @@ for j in range(fact):
     if all[j][2]>0:
         atmtps = atmtps + 1
 
-a=len(options.filename)
-mol=open(options.filename[0:a-4]+'.mol','w')
+a=len(args.filename)
+mol=open(args.filename[0:a-4]+'.mol','w')
 mol.write('BASIS\n\
 '+basis+'\n\
-Structure from file '+options.filename+'\n\
+Structure from file '+args.filename+'\n\
 ----------------------\n\
 AtomTypes='+str(atmtps)+' NoSymmetry Angstrom')
 if charge==0:
@@ -68,7 +68,7 @@ if charge==0:
 else:
     print "WARNING!"
     print "The total charge of the molecule(s) is (are)"
-    print "found to be "+str(charge) + " in file " + options.filename
+    print "found to be "+str(charge) + " in file " + args.filename
     print "Please be sure this is correct."
     mol.write(' Charge='+str(charge)+'\n')
 

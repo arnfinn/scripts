@@ -94,8 +94,6 @@ def rotarg(a,b,c):
         rotvec2=[1.0,0.0,0.0]
     return [angle1,rotvec1],[angle2,rotvec2]
 
-
-
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawTextHelpFormatter,
     description="\
