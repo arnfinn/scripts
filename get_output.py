@@ -124,7 +124,7 @@ def get_ecd(lines):
                 return out
         if k > 9:
             r = i.split()
-            out += "{0} ({2} {1})  ".format(r[3],r[7],r[5])
+            out += "{0} ({1} {2})  ".format(r[3],r[7],r[5])
 
 def get_dipole(lines):
     count = False

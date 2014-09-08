@@ -21,8 +21,8 @@ parser.add_argument('-o', dest='outputfile', metavar='OUTPUT_FILE',
 parser.add_argument('--input-type', dest='inputtype', metavar='TYPE',
                     choices=['ancient', 'old', 'new'], default='ancient',
                     help='''Specify the format of the input file. Valid choices
-                            are %(choices)s. [default: %(default)s]. "new will 
-                            convert from new to ancient."''')
+                            are %(choices)s. [default: %(default)s]. "new" will 
+                            convert from new to ancient.''')
 
 args = parser.parse_args()
 
@@ -222,7 +222,7 @@ elif args.inputtype == 'old':
             body += "ORDER 2\n"
         elif "alphas" in i:
             body += "@POLARIZABILITIES\nORDER 1 1\n"
-        elif "exclists" in i:
+        elif "exclists" in i or "exlists" in i:
             exclist_nums = True
             body += "EXCLISTS\n"
         elif read_num_atoms:
