@@ -35,6 +35,8 @@ git bisect good
 git bisect reset
 git co master; git merge --squash --ff tmp_branch
 
+--- if submodules has been moved ---
+git submodule sync
 """
 
 print "find . -type f -print0 | xargs -0 sed -i -c 's/\-lt/\-ne/g'"
