@@ -114,6 +114,8 @@ def get_ecd(lines):
     count = False
     k = -999
     out = ""
+    nm = False
+    nm = True
     for i in lines:
         if "Oscillator and Scalar Rotational Strengths" in i:
             count = True
@@ -124,7 +126,10 @@ def get_ecd(lines):
                 return out
         if k > 9:
             r = i.split()
-            out += "{0} ({1} {2})  ".format(int(1240.0/float(r[3])+0.5),r[7],r[5])
+            if nm:
+                out += "{0} ({1} {2})  ".format(int(1240.0/float(r[3])+0.5),r[7],r[5])
+            else:
+                out += "{0} ({1} {2})  ".format(r[3],r[7],r[5])
 
 def get_dipole(lines):
     count = False
