@@ -35,6 +35,12 @@ git bisect good
 git bisect reset
 git co master; git merge --squash --ff tmp_branch
 
+--- create new branch ---
+git push origin <new_branch>
+
+--- delete branch remotely ---
+git push origin --delete <branch-name>
+
 --- if submodules has been moved ---
 git submodule sync
 """
