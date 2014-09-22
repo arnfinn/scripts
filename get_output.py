@@ -77,16 +77,9 @@ def get_property(lines):
                 my_prop = "ecd"
                 break
     if rsp:
-        convergence = False
         for i in lines:
-            words = i.split()
-            try:
-                if words[1]=='THE' and  words[2]=='REQUESTED' and  words[6]=='CONVERGED':
-                    convergence = True
-            except:
-                pass
-        if not convergence:
-            exit("Response calculation did not converge")
+            if "SOLUTION VECTORS NOT CONVERGED" in i:
+                my_prop = "no"
     if prop and my_prop == "":
         my_prop = "dipole"
 
@@ -175,11 +168,11 @@ def get_opa(lines):
 def get_tpa(lines):
     get_data = False
     tpa_string = ""
+    exc = []
+    GM = []
     for i in lines:
         if "Two-photon absorption summary" in i:
             get_data = True
-            exc = []
-            GM = []
         if get_data:
             words = i.split()
             if len(words) == 9:
@@ -187,31 +180,26 @@ def get_tpa(lines):
                     exc.append(words[2])
                     sigma_au=float(words[6])
                     GM.append(au2GM(float(words[2]),sigma_au))
-    if len(exc) != len(GM):
-        exit("Something wrong in get_tpa!")
     for i in range(len(exc)):
-        tpa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),float(GM[i]))
+        tpa_string += "{0:.4f} ({1:.3f}) ".format(float(exc[i]),float(GM[i]))
     return tpa_string
 
 def get_3pa(lines):
     get_data = False
     tpa_string = ""
+    exc = []
+    sigma_au = []
     for i in lines:
         if "Three-photon transition probability" in i:
             get_data = True
-            exc = []
-            sigma_au = []
         if get_data:
             words = i.split()
             if len(words) == 8:
                 if words[3] == "Linear":
                     exc.append(words[2])
                     sigma_au.append(float(words[6]))
-#                    GM.append(au2GM(float(words[2]),sigma_au))
-    if len(exc) != len(sigma_au):
-        exit("Something wrong in get_tpa!")
     for i in range(len(exc)):
-        tpa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),sigma_au[i])
+        tpa_string += "{0:.4f} ({1:.2f}) ".format(float(exc[i]),sigma_au[i])
     return tpa_string
 
 def get_alpha(lines):
@@ -362,6 +350,8 @@ for i in sys.argv[1:]:
     myfile.close()
 
     prop = get_property(lines)
+    if prop == "no":
+        exit("Response calculation did not converge  {0}".format(i))
     prline = get_output(lines,prop)
 
     if prline != '':
