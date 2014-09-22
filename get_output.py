@@ -69,6 +69,9 @@ def get_property(lines):
             elif dalinp[0:4] == "NEF ":
                 my_prop = "nef"
                 break
+            elif dalinp[0:6] == ".THREE":
+                my_prop = "3pa"
+                break
         if prop:
             if dalinp == ".ECD   ":
                 my_prop = "ecd"
@@ -94,6 +97,8 @@ def get_output(lines,prop):
         output = get_opa(lines)
     elif prop =="2pa":
         output = get_tpa(lines)
+    elif prop == "3pa":
+        output = get_3pa(lines)
     elif prop == "alpha":
         output = get_alpha(lines)
     elif prop == "beta":
@@ -186,6 +191,27 @@ def get_tpa(lines):
         exit("Something wrong in get_tpa!")
     for i in range(len(exc)):
         tpa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),float(GM[i]))
+    return tpa_string
+
+def get_3pa(lines):
+    get_data = False
+    tpa_string = ""
+    for i in lines:
+        if "Three-photon transition probability" in i:
+            get_data = True
+            exc = []
+            sigma_au = []
+        if get_data:
+            words = i.split()
+            if len(words) == 8:
+                if words[3] == "Linear":
+                    exc.append(words[2])
+                    sigma_au.append(float(words[6]))
+#                    GM.append(au2GM(float(words[2]),sigma_au))
+    if len(exc) != len(sigma_au):
+        exit("Something wrong in get_tpa!")
+    for i in range(len(exc)):
+        tpa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),sigma_au[i])
     return tpa_string
 
 def get_alpha(lines):
