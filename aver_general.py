@@ -86,10 +86,12 @@ for line in lines:
 #        print "two "+ettall
     else:
         ettall = words[row]
+    if "(" in ettall:
+        ettall = ettall.replace("(","").replace(")","")
     if float(ettall) < 0:
         # dirty fix! negative numbers became positive in the re.sub stuff
         ettall = float(ettall)
-    else
+    else:
 #        print "one " +ettall
         try:
             # the script did not eat 1.0e-4 kind of numbers
