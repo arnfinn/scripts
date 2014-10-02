@@ -43,6 +43,10 @@ git push origin --delete <branch-name>
 
 --- if submodules has been moved ---
 git submodule sync
+
+--- rewrite last (unpushed) commit message ---
+git commit --amend
+
 """
 
 print "find . -type f -print0 | xargs -0 sed -i -c 's/\-lt/\-ne/g'"
