@@ -25,6 +25,11 @@ sed '0,/replace/{s/replace/new_string/}' file
 --- number of lines in a directory ---
 ls -1 targetdir | wc -l
 
+--- stdout and stderr during run is ---
+--- located on the running node in  ---  
+/var/spool/torque/spool/
+
+
 xxxxxxxxxxxxxxxxxxxx
 xxx git commands xxx
 xxxxxxxxxxxxxxxxxxxx
