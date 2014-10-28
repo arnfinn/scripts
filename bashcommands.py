@@ -38,7 +38,12 @@ git bisect start
 git bisect bad
 git bisect good
 git bisect reset
+
+--- merge with one new commit instead of merge commit ---
 git co master; git merge --squash --ff tmp_branch
+
+--- only show the commits directly to this branch ---
+git log --first-parent
 
 --- create new branch ---
 git push origin <new_branch>
