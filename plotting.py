@@ -58,6 +58,8 @@ parser.add_argument("--bw",default=False, action='store_true',dest="bw",
                     help="Make black and white figure")
 parser.add_argument("--noleg",default=False, action='store_true',dest="noleg",
                     help="No legend")
+parser.add_argument("--log",default=False, action='store_true',dest="log",
+                    help="Logarithmic y-axis")
 parser.add_argument("--stderror",default=False, action='store_true',dest="stderror",
                     help="Use standard error instead of standard deviation")
 
@@ -255,8 +257,9 @@ for i in inp:
     num += 1
     if xlim:
         plt.xlim(xlim)
+    if args.log:
+        plt.yscale('log')
 
-# What is this?
 plt.subplots_adjust(left=0.15)
 
 if not args.subplot and y=="exc" and ylim:
