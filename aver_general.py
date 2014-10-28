@@ -85,9 +85,17 @@ for line in lines:
         ettall=str((oneex*onetr + twoex*twotr)/(onetr + twotr))
 #        print "two "+ettall
     else:
-        ettall = words[row]
+        try:
+            ettall = words[row]
+        except:
+            continue
     if "(" in ettall:
         ettall = ettall.replace("(","").replace(")","")
+    try:
+        test = float(ettall)
+    except:
+        # skip loop if ettall is not a number
+        continue
     if float(ettall) < 0:
         # dirty fix! negative numbers became positive in the re.sub stuff
         ettall = float(ettall)
