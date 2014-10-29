@@ -13,6 +13,18 @@ import subprocess
 import os.path
 import os
 
+try:
+    from scipy.constants import *
+    bohr=1e2*physical_constants['Bohr radius'][0]
+    eV2au=physical_constants['electron volt-hartree relationship'][0]
+    c=c*100
+except:
+    import math
+    bohr=5.291772108e-9     # cm
+    alpha=0.007297352568    # -
+    c=2.99792458e10         # cm/s
+    eV2au=0.03674932379     # au/eV
+    pi=math.pi              # -
 
 def sec_to_time(sec):
     hrs = int(sec/3600.0)
@@ -25,6 +37,13 @@ def sec_to_time(sec):
         return "{1} min {2:.2f} sec".format(hrs, mins, sec)
     else:
         return "{0} h {1} min {2:.2f} sec".format(hrs, mins, sec)
+
+def au2GM(exi_ev,sigma_au):
+    lorentzian=0.0036749326 # au
+    const=8*1e50*(pi**2)*alpha*(bohr**5)/(c*lorentzian)
+    exi_au=exi_ev*eV2au
+    sigma_GM=const*((exi_au*0.5)**2)*sigma_au
+    return sigma_GM
 
 def write_file(filename, content, force=False):
     if os.path.isfile(filename) and not force:
@@ -213,7 +232,8 @@ def make_dal_exc(dal_head, num):
 '''.format(num)
     return dal_exc
 
-def make_dal_npa(num, photons, freq):
+def make_dal_npa(dal_head, num, photons, freq):
+    # make the dalton input file for calculating npa number 'num'
     part_freq = float(freq)/float(photons)
     rspcix = ""
     rsp_count = 2
@@ -308,13 +328,14 @@ freq = get_freq(pre_name+".stdout")
 #####################################
 
 k = 0
+all_cs = []
 for i in freq:
     k += 1
     if args.verbose:
         time3 = time.time()
         print "Calculating the {0}pa cross section for frequency number {1} (freq: {2})".format(args.photons, k, i)
     npa_dal = "{0}pa_exc{1}_{2}.dal".format(args.photons, k, args.xc)
-    write_file(npa_dal, make_dal_npa(k, args.photons, i), force=True)
+    write_file(npa_dal, make_dal_npa(dal_head, k, args.photons, i), force=True)
     # run the actual calculation
     pre_name = run_dalton(exc=args.dalton, dal=npa_dal, mol=args.molfile, pot=args.potfile, cores=args.mpi, force=force)
     if args.verbose:
@@ -325,8 +346,19 @@ for i in freq:
 Frequency:     {0}
 Cross section: {1}
 '''.format(i,cs)
+    all_cs.append(cs)
 
 if args.verbose:
     final_time = time.time()
     print "Total time spent: {0}".format(sec_to_time(final_time-start_time))
     
+# print ex (cross section) in eV (au/GM)
+ev_string = ""
+for i in range(len(all_cs)):
+    ev = float(freq[i])/eV2au
+    if args.photons == 2:
+        cs = au2GM(ev,float(all_cs[i]))
+    else:
+        cs = all_cs[i]
+    ev_string += "{0:.2f} ({1:.3f}) ".format(ev, cs)
+print ev_string
