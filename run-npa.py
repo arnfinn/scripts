@@ -272,7 +272,7 @@ parser.add_argument("--pot",dest="potfile",
 parser.add_argument("-d","--dalton", dest="dalton", default=home+"/dalton-openrsp/build-openrsp-npa/dalton",
 					help="The location of the dalton script [default: %(default)s]")
 parser.add_argument("--skip", dest="skip", default = False, action="store_true",
-                    help = "Skip the actual calculation if the std.out files are already there")
+                    help = "Skip the actual calculation if the stdout file is already there")
 parser.add_argument("-v", "--verbose", dest="verbose", default = False, action="store_true",
                     help = "Print more")
 args = parser.parse_args()
