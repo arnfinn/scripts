@@ -162,7 +162,7 @@ def get_opa(lines):
     if len(osc) != len(exc):
         exit("Something wrong in get_opa!")
     for i in range(len(osc)):
-        opa_string += "{0:.4f} ({1:.3f}) ".format(float(exc[i]),osc[i])
+        opa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),osc[i])
     return opa_string
 
 def get_tpa(lines):
@@ -181,7 +181,7 @@ def get_tpa(lines):
                     sigma_au=float(words[6])
                     GM.append(au2GM(float(words[2]),sigma_au))
     for i in range(len(exc)):
-        tpa_string += "{0:.4f} ({1:.3f}) ".format(float(exc[i]),float(GM[i]))
+        tpa_string += "{0:.2f} ({1:.3f}) ".format(float(exc[i]),float(GM[i]))
     return tpa_string
 
 def get_3pa(lines):
@@ -199,7 +199,7 @@ def get_3pa(lines):
                     exc.append(words[2])
                     sigma_au.append(float(words[6]))
     for i in range(len(exc)):
-        tpa_string += "{0:.4f} ({1:.2f}) ".format(float(exc[i]),sigma_au[i])
+        tpa_string += "{0:.2f} ({1:.2f}) ".format(float(exc[i]),sigma_au[i])
     return tpa_string
 
 def get_alpha(lines):
