@@ -1,46 +1,13 @@
-#!/bin/env python
-
-###!/usr/bin/python
+#!/usr/bin/env python
 
 import os
-import shlex
-import subprocess as sp
 import argparse as ap
 
-parser = ap.ArgumentParser(description='LoProp job submitter 0.1')
+parser = ap.ArgumentParser(description='LoProp input file producer (a stripped down version of the LoProp job submitter 0.1 by Jogvan)')
 
 parser.add_argument('-xyz', dest='xyzfile', metavar='XYZ_FILE',
                     help='''the name of the xyz input file that contains the
                             molecule.''')
-
-parser.add_argument('-w', dest='walltime', default='01:00:00', metavar='WALLTIME',
-                    help='''Specify walltime. [default: %(default)s]''')
-
-parser.add_argument('-q', dest='queue', default='workq', metavar='QUEUE_NAME',
-                    help='''Specify queue name. [default: %(default)s]''')
-
-parser.add_argument('-N', dest='nodes', type=int, default=1, metavar='NODES',
-                    help='''Specify the number of nodes to use.
-                            [default: %(default)s]''')
-
-parser.add_argument('-n', dest='ncores', type=int, default=32, metavar='CORES',
-                    help='''Specify the number of cores per node. Default is
-                            8 on HS6, 12 on HS7 and 16 on HS8.''')
-
-parser.add_argument('-m', dest='mem', type=int, default=2000, metavar='MEMORY',
-                    help='''Specify memory per cpu core in MB.
-                            [default: %(default)s]''')
-
-#parser.add_argument('--dalton', dest='dalprog', metavar='DALTON_PATH',
-#                    default='/people/disk2/magnus/Programs/dalton/build_hs8_intel',
-#                    help='''Specify alternative Dalton installation. Please specify
-#                            path to the location of the Dalton script.
-#                            [default: %(default)s]''')
-
-parser.add_argument('--script-only', dest='qsub', action='store_false',
-                    default=True,
-                    help='''Create submit script but do not submit.
-                            [default: %(default)s]''')
 
 parser.add_argument('--method', dest='method', metavar='METHOD',
                      default='DFT', choices=['DFT', 'HF'],
@@ -64,7 +31,7 @@ parser.add_argument('--bond-midpoints', dest='bonds', action='store_true',
 
 parser.add_argument('--charge', dest='charge', metavar='CHARGE',
                      default=0, type=int,
-                     help='''Specify basis set. [default: %(default)s]''')
+                     help='''Specify the charge of the molecule. [default: %(default)s]''')
 
 args = parser.parse_args()
 
@@ -78,33 +45,6 @@ else:
 
 if not os.path.isfile('{}.xyz'.format(xyzfile)):
     exit('{}.xyz not found.'.format(xyzfile))
-
-if args.nodes > 1:
-    exit('Molcas is only available for single node runs.')
-
-ncpus = args.ncores * args.nodes
-
-hs = os.environ['HOSTNAME']
-#if hs != 'fe8' and hs != 'fe7' and hs != 'fe6':
-#    exit('ERROR: molcas is only available on HS6, HS7 and HS8.')
-
-if args.ncores != 32:
-    ncores = args.ncores
-else:
-    if hs == 'fe6':
-        ncores = 8
-    elif hs == 'fe7':
-        ncores = 12
-    elif hs == 'fe8':
-        ncores = 16
-ncpus = ncores * args.nodes
-
-if ncores != 16 and hs == 'fe8':
-    print('WARNING: using {0} cores per node even though HS8 has 16!'.format(ncores))
-elif ncores != 12 and hs == 'fe7':
-    print('WARNING: using {0} cores per node even though HS7 has 12!'.format(ncores))
-elif ncores != 8 and hs == 'fe6':
-    print('WARNING: using {0} cores per node even though HS6 has 8!'.format(ncores))
 
 if args.method == 'DFT':
     method = 'KSDFT\n' + args.xcfun
@@ -147,31 +87,4 @@ input = ('&GATEWAY &END\n' +
 finp = open('{0}.inp'.format(xyzfile), 'w')
 finp.write(input)
 finp.close()
-
-submit = ('#!/bin/bash\n' +
-          '#PBS -l nodes={}\n'.format(args.nodes) +
-          '#PBS -N {}\n'.format(xyzfile) +
-          '#PBS -q {}\n'.format(args.queue) +
-          '#PBS -l walltime={}\n\n'.format(args.walltime) +
-#          'export MPIRUN_ARGS="--mca btl_tcp_if_include eth0 --mca btl tcp,self"\n' +
-          'source ~magnus/.molcas\n'.format(hs[2]) +
-          'export WorkDir=/scratch\n' +
-          'export OMP_NUM_THREADS={0}\n'.format(ncores) +
-          'cd $PBS_O_WORKDIR\n' +
-          'cp {}.xyz /scratch/\n'.format(xyzfile) +
-          'molcas {0}.inp > {0}.out\n'.format(xyzfile) +
-          'cp /scratch/{0}.MpProp {0}.MpProp\n'.format(xyzfile))
-
-fsub = open('{0}.sh'.format(xyzfile), 'w')
-fsub.write(submit)
-fsub.close()
-
-if args.qsub:
-    cmd = shlex.split('qsub {}.sh'.format(xyzfile))
-    proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
-    output, error = proc.communicate()
-
-    if error:
-        print('{}'.format(error))
-    print('{}'.format(output))
 

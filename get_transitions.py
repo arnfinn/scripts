@@ -57,8 +57,7 @@ parser.add_option("-t", "--trans",type="int",default=10, dest="numtrans", help="
 try:
     file = open(options.filename,'r')
 except:
-    print 'Did not find file '+i
-    exit()
+    exit('Did not find file '+i)
 
 numtrans=options.numtrans
 latex=options.latex
