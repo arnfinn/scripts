@@ -14,7 +14,7 @@ def flattenLatex( rootFilename ):
                 newFile = match.group(1)
                 if not newFile.endswith('tex'):
                     newFile += '.tex'
-                flattenLatex( os.path.join(dirpath,newFile) )
+                flattenLatex( newFile )
             else:
                 sys.stdout.write(line)
 
